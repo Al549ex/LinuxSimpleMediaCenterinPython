@@ -1,0 +1,24 @@
+# RaspIPTV - Media Center Requirements
+
+# UI Framework
+textual>=0.47.0
+
+# Networking & API
+requests>=2.31.0
+
+# VPN Management
+nordvpn-switcher>=1.1.1
+
+# Standard library dependencies (included in Python 3.9+)
+# No need to install separately:
+# - subprocess
+# - configparser
+# - json
+# - logging
+# - pathlib
+# - socket
+# - os
+# - sys
+# - time
+# - re
+# - typing

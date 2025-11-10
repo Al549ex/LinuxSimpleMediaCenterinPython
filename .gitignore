@@ -1,0 +1,92 @@
+# RaspIPTV - Git Ignore File
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Configuration Files (contienen información sensible)
+config.ini
+radios.json
+
+# Logs
+*.log
+app.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Media Files (demasiado grandes para git)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.m4v
+
+# M3U Files (pueden ser muy grandes)
+*.m3u
+*.m3u8
+Archivos M3U/
+
+# Media Folders
+Peliculas/
+peliculas/
+movies/
+Movies/
+
+# MPV Watch Later Files
+watch_later/
+
+# Temporary Files
+*.tmp
+*.temp
+/tmp/
+
+# System Files
+Thumbs.db
+.DS_Store
+
+# Coverage Reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
