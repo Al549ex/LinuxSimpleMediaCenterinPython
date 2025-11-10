@@ -1,33 +1,34 @@
-# Archivo de configuración de ejemplo para RaspIPTV
-# Copia este archivo como 'config.ini' y edita los valores
+# Example configuration file for RaspIPTV
+# Copy this file as 'config.ini' and edit the values
 
 [PATHS]
-# Ruta donde están tus películas locales
-local_media_path = ./Peliculas/
+# Path where your local movies are located
+local_media_path = ./Movies/
 
-# Ruta donde están tus archivos .m3u de IPTV
-iptv_folder_path = ./Archivos M3U/
+# Path where your IPTV .m3u files are located
+iptv_folder_path = ./M3U Files/
 
-# Ruta al archivo JSON de radios
+# Path to the radio JSON file
 radio_file_path = radios.json
 
 [VPN]
-# Activar VPN automáticamente para IPTV (yes/no)
+# Automatically enable VPN for IPTV (yes/no)
 enabled_for_iptv = no
 
-# País al que conectarse con NordVPN
+# Country to connect to with NordVPN
 country = Spain
 
-# Credenciales de NordVPN (dejar vacío si no usas VPN)
+# NordVPN credentials (leave empty if not using VPN)
 username = 
 password = 
 
 [IPTV]
-# URL de tu proveedor de IPTV para la función "Actualizar Canales"
-# Ejemplo: https://miproveedor.com/lista.m3u
+# Your IPTV provider URL for the "Update Channels" function
+# Example: https://myprovider.com/list.m3u
 source_url = 
 
 [TMDB]
-# API Key de The Movie Database (opcional)
-# Obtén una gratis en https://www.themoviedb.org/settings/api
+# The Movie Database API Key (optional)
+# Get one free at https://www.themoviedb.org/settings/api
 api_key = 
+

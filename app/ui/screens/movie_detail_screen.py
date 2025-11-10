@@ -13,7 +13,7 @@ from app.core.progress import get_progress, clear_progress
 from app.ui.screens.now_playing_screen import NowPlayingScreen
 
 class MovieDetailScreen(Screen):
-    """Pantalla con los detalles de una película."""
+    """Screen with movie details."""
 
     CSS = """
     #movie-detail-container {
@@ -78,15 +78,15 @@ class MovieDetailScreen(Screen):
         self.progress = get_progress(file_path)
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=True, name="Detalles de la Película")
+        yield Header(show_clock=True, name="Movie Details")
         
         with ScrollableContainer(id="movie-detail-container"):
             with Vertical(id="movie-header"):
-                # Título
+                # Title
                 title = self.movie_info.get('title', Path(self.file_path).stem)
                 yield Static(title, classes="movie-title")
                 
-                # Información básica
+                # Basic information
                 info_parts = []
                 if self.movie_info.get('release_date'):
                     year = self.movie_info['release_date'][:4]
@@ -105,7 +105,7 @@ class MovieDetailScreen(Screen):
                 if info_parts:
                     yield Static(" • ".join(info_parts), classes="movie-info")
                 
-                # Géneros
+                # Genres
                 if self.movie_info.get('genres'):
                     genres = ", ".join(self.movie_info['genres'])
                     yield Static(f"🎬 {genres}", classes="movie-info")
@@ -117,39 +117,39 @@ class MovieDetailScreen(Screen):
                         classes="movie-info"
                     )
             
-            # Sinopsis
+            # Synopsis
             if self.movie_info.get('overview'):
-                yield Static("Sinopsis:", classes="section-title")
+                yield Static("Synopsis:", classes="section-title")
                 yield Static(self.movie_info['overview'], classes="movie-overview")
             
-            # Reparto
+            # Cast
             if self.movie_info.get('cast'):
-                yield Static("Reparto:", classes="section-title")
+                yield Static("Cast:", classes="section-title")
                 cast_text = ", ".join(self.movie_info['cast'])
                 yield Static(cast_text, classes="movie-overview")
             
-            # Información de progreso
+            # Progress information
             if self.progress and self.progress > 10:
                 time_str = self._format_time(self.progress)
                 yield Static(
-                    f"⏱️ Tienes esta película vista hasta: {time_str}",
+                    f"⏱️ You've watched this movie up to: {time_str}",
                     classes="progress-info"
                 )
         
         yield Footer()
         
-        # Botones
+        # Buttons
         with Horizontal(id="button-row"):
             if self.progress and self.progress > 10:
-                yield Button("▶️ Reanudar", id="resume_movie", variant="primary")
-                yield Button("🔄 Desde el inicio", id="restart_movie", variant="success")
+                yield Button("▶️ Resume", id="resume_movie", variant="primary")
+                yield Button("🔄 From beginning", id="restart_movie", variant="success")
             else:
-                yield Button("▶️ Reproducir", id="play_movie", variant="primary")
+                yield Button("▶️ Play", id="play_movie", variant="primary")
             
-            yield Button("⬅️ Volver", id="back_button", variant="error")
+            yield Button("⬅️ Back", id="back_button", variant="error")
 
     def _format_time(self, seconds: float) -> str:
-        """Formatea segundos a HH:MM:SS."""
+        """Formats seconds to HH:MM:SS."""
         secs = int(seconds)
         hours, rem = divmod(secs, 3600)
         mins, secs = divmod(rem, 60)
@@ -159,7 +159,7 @@ class MovieDetailScreen(Screen):
         return f"{mins:02d}:{secs:02d}"
 
     def _play_movie(self, start_position: float = 0.0):
-        """Inicia la reproducción."""
+        """Starts playback."""
         title = self.movie_info.get('title', Path(self.file_path).stem)
         self.app.push_screen(
             NowPlayingScreen(
@@ -171,7 +171,7 @@ class MovieDetailScreen(Screen):
         )
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Gestiona los botones."""
+        """Handles button presses."""
         if event.button.id == "play_movie":
             self._play_movie()
         

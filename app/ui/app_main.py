@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-import subprocess  # Importante para lanzar mpv, openvpn, etc.
+import subprocess  # Important for launching mpv, openvpn, etc.
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Header, Footer, Static
 from textual.containers import VerticalScroll
 
 """
-Este es un ejemplo básico de un Centro Multimedia usando Textual.
+This is a basic example of a Media Center using Textual.
 """
 
 class MediaCenterApp(App):
-    """La aplicación principal de tu centro multimedia."""
+    """The main media center application."""
 
-    # CSS para dar un poco de estilo. 
-    # 'auto' en width/height hace que se centre.
+    # CSS for styling. 
+    # 'auto' in width/height centers it.
     CSS = """
     Screen {
         layout: vertical;
@@ -33,51 +33,51 @@ class MediaCenterApp(App):
     """
 
     def compose(self) -> ComposeResult:
-        """Define la interfaz de usuario (lo que se ve)."""
-        yield Header("Mi Centro Multimedia (Pi 4)")
+        """Defines the user interface (what you see)."""
+        yield Header("My Media Center (Pi 4)")
         
-        # Un contenedor vertical para los botones
+        # A vertical container for the buttons
         with VerticalScroll(id="menu"):
-            yield Static("¿Qué quieres hacer?")
-            yield Button("📺 Ver IPTV", id="btn_iptv", variant="primary")
-            yield Button("🎬 Ver Películas (USB)", id="btn_local")
-            yield Button("🎵 Escuchar Radio (demo)", id="btn_radio")
-            yield Button("🔌 Salir", id="btn_quit", variant="error")
+            yield Static("What would you like to do?")
+            yield Button("📺 Watch IPTV", id="btn_iptv", variant="primary")
+            yield Button("🎬 Watch Movies (USB)", id="btn_local")
+            yield Button("🎵 Listen to Radio (demo)", id="btn_radio")
+            yield Button("🔌 Exit", id="btn_quit", variant="error")
             
         yield Footer()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        """Se llama automáticamente cuando se pulsa un botón."""
+        """Called automatically when a button is pressed."""
         
         if event.button.id == "btn_iptv":
-            # --- TU LÓGICA DE IPTV AQUÍ ---
-            # 1. Conectar a VPN
-            # 2. Listar .m3u
-            # 3. Lanzar mpv
-            # Por ahora, solo simulamos lanzando el vídeo principal
-            # NOTA: Usamos subprocess.Popen para no bloquear la app
-            # subprocess.Popen(["mpv", "ruta/a/tu/video.m3u8"])
-            # (Recuerda que tu script en C ya hace esto, podrías llamarlo)
-            subprocess.Popen(["/ruta/a/tu/programa_en_c"])
+            # --- YOUR IPTV LOGIC HERE ---
+            # 1. Connect to VPN
+            # 2. List .m3u files
+            # 3. Launch mpv
+            # For now, we just simulate launching the main video
+            # NOTE: We use subprocess.Popen to not block the app
+            # subprocess.Popen(["mpv", "path/to/your/video.m3u8"])
+            # (Remember that your C script already does this, you could call it)
+            subprocess.Popen(["/path/to/your/c_program"])
             
-            # (Si quisieras lanzar los dos mpv desde Python)
-            # subprocess.Popen(["mpv", "ruta/a/video.m3u8"])
-            # subprocess.Popen(["mpv", "ruta/a/radio.m3u8"])
+            # (If you wanted to launch both mpv instances from Python)
+            # subprocess.Popen(["mpv", "path/to/video.m3u8"])
+            # subprocess.Popen(["mpv", "path/to/radio.m3u8"])
 
 
         elif event.button.id == "btn_local":
-            # --- TU LÓGICA DE PELÍCULAS AQUÍ ---
-            # 1. Montar USB si no lo está
-            # 2. Buscar archivos .mkv, .mp4
-            # 3. (En un futuro) Mostrar una lista de archivos
-            # 4. Lanzar mpv (¡con la opción de guardar progreso!)
+            # --- YOUR MOVIE LOGIC HERE ---
+            # 1. Mount USB if not mounted
+            # 2. Search for .mkv, .mp4 files
+            # 3. (In the future) Show a list of files
+            # 4. Launch mpv (with save progress option!)
             
-            # Ruta de ejemplo
-            ruta_pelicula = "/Users/macdealex/Pictures/Router/" 
+            # Example path
+            movie_path = "/Users/macdealex/Pictures/Router/" 
             
-            # Lanzamos mpv. mpv guardará el progreso automáticamente
-            # si tienes 'save-position-on-quit=yes' en tu mpv.conf
-            subprocess.Popen(["mpv", ruta_pelicula])
+            # Launch mpv. mpv will save progress automatically
+            # if you have 'save-position-on-quit=yes' in your mpv.conf
+            subprocess.Popen(["mpv", movie_path])
 
         
         elif event.button.id == "btn_radio":

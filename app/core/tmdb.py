@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 class TMDBClient:
-    """Cliente para la API de The Movie Database (TMDB)."""
+    """Client for The Movie Database (TMDB) API."""
     
     BASE_URL = "https://api.themoviedb.org/3"
     IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
@@ -21,38 +21,38 @@ class TMDBClient:
         })
     
     def _clean_movie_title(self, filename: str) -> str:
-        """Extrae el título limpio del nombre del archivo."""
-        # Eliminar extensión
+        """Extracts clean title from filename."""
+        # Remove extension
         title = Path(filename).stem
         
-        # Eliminar año entre paréntesis o corchetes
+        # Remove year in parentheses or brackets
         title = re.sub(r'[\[\(]\d{4}[\]\)]', '', title)
         
-        # Eliminar calidad y formatos comunes
+        # Remove common quality and format tags
         title = re.sub(r'\b(1080p|720p|480p|BluRay|BRRip|WEB-DL|HDRip|XviD|x264|x265|HEVC)\b', '', title, flags=re.IGNORECASE)
         
-        # Reemplazar puntos, guiones bajos y múltiples espacios
+        # Replace dots, underscores and multiple spaces
         title = re.sub(r'[._-]', ' ', title)
         title = re.sub(r'\s+', ' ', title)
         
         return title.strip()
     
     def search_movie(self, filename: str) -> Optional[Dict]:
-        """Busca una película por nombre de archivo y retorna la información."""
+        """Searches for a movie by filename and returns information."""
         if not self.api_key:
-            logging.warning("API key de TMDB no configurada.")
+            logging.warning("TMDB API key not configured.")
             return None
         
-        # Limpiar el título
+        # Clean the title
         clean_title = self._clean_movie_title(filename)
         
         try:
-            # Buscar película
+            # Search movie
             url = f"{self.BASE_URL}/search/movie"
             params = {
                 'api_key': self.api_key,
                 'query': clean_title,
-                'language': 'es-ES',
+                'language': 'en-US',
                 'page': 1
             }
             
@@ -61,26 +61,26 @@ class TMDBClient:
             data = response.json()
             
             if data.get('results'):
-                # Tomar el primer resultado
+                # Take the first result
                 movie = data['results'][0]
                 
-                # Obtener detalles completos
+                # Get complete details
                 return self.get_movie_details(movie['id'])
             
-            logging.info(f"No se encontró información para: {clean_title}")
+            logging.info(f"No information found for: {clean_title}")
             return None
             
         except requests.RequestException as e:
-            logging.error(f"Error al buscar película en TMDB: {e}")
+            logging.error(f"Error searching movie in TMDB: {e}")
             return None
     
     def get_movie_details(self, movie_id: int) -> Optional[Dict]:
-        """Obtiene detalles completos de una película."""
+        """Gets complete movie details."""
         try:
             url = f"{self.BASE_URL}/movie/{movie_id}"
             params = {
                 'api_key': self.api_key,
-                'language': 'es-ES',
+                'language': 'en-US',
                 'append_to_response': 'credits'
             }
             
@@ -88,12 +88,12 @@ class TMDBClient:
             response.raise_for_status()
             movie = response.json()
             
-            # Formatear datos
+            # Format data
             return {
-                'title': movie.get('title', 'Título desconocido'),
+                'title': movie.get('title', 'Unknown Title'),
                 'original_title': movie.get('original_title', ''),
-                'overview': movie.get('overview', 'Sin descripción disponible.'),
-                'release_date': movie.get('release_date', 'Desconocido'),
+                'overview': movie.get('overview', 'No description available.'),
+                'release_date': movie.get('release_date', 'Unknown'),
                 'runtime': movie.get('runtime', 0),
                 'vote_average': movie.get('vote_average', 0),
                 'poster_path': f"{self.IMAGE_BASE_URL}{movie['poster_path']}" if movie.get('poster_path') else None,
@@ -104,19 +104,19 @@ class TMDBClient:
             }
             
         except requests.RequestException as e:
-            logging.error(f"Error al obtener detalles de TMDB: {e}")
+            logging.error(f"Error getting details from TMDB: {e}")
             return None
     
     def _get_director(self, credits: Dict) -> str:
-        """Extrae el director del créditos."""
+        """Extracts director from credits."""
         crew = credits.get('crew', [])
         for person in crew:
             if person.get('job') == 'Director':
-                return person.get('name', 'Desconocido')
-        return 'Desconocido'
+                return person.get('name', 'Unknown')
+        return 'Unknown'
     
     def _get_cast(self, credits: Dict) -> list:
-        """Extrae los actores principales."""
+        """Extracts main cast members."""
         cast = credits.get('cast', [])
         return [person.get('name') for person in cast[:5]]
 

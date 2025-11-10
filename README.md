@@ -1,6 +1,6 @@
 # 🎬 RaspIPTV Media Center
 
-Un centro multimedia completo y optimizado para **Raspberry Pi 4**, construido con Python y Textual. Reproduce películas locales, IPTV con integración de VPN, radio en streaming y más.
+A complete media center optimized for **Raspberry Pi 4**, built with Python and Textual. Play local movies, IPTV with VPN integration, streaming radio and more.
 
 ![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%204-red.svg)
@@ -8,188 +8,188 @@ Un centro multimedia completo y optimizado para **Raspberry Pi 4**, construido c
 
 ---
 
-## ✨ Características
+## ✨ Features
 
-### 🎥 Biblioteca de Películas
-- **Integración con TMDB**: Búsqueda automática de información de películas
-- **Detalles completos**: Sinopsis, reparto, director, géneros, puntuación
-- **Guardar y reanudar**: Retoma desde donde lo dejaste
-- **Interfaz elegante**: Diseño tipo biblioteca con toda la información
+### 🎥 Movie Library
+- **TMDB Integration**: Automatic movie information lookup
+- **Complete Details**: Synopsis, cast, director, genres, ratings
+- **Save and Resume**: Pick up where you left off
+- **Elegant Interface**: Library-style design with all information
 
 ### 📺 IPTV
-- **Reproducción de canales**: Soporte para archivos `.m3u`
-- **Actualización automática**: Descarga y divide listas IPTV por grupos
-- **Integración VPN**: Conecta automáticamente a NordVPN para streaming
-- **Gestión inteligente**: Organización alfabética de grupos de canales
+- **Channel Playback**: Support for `.m3u` files
+- **Automatic Updates**: Downloads and splits IPTV lists by groups
+- **VPN Integration**: Automatically connects to NordVPN for streaming
+- **Smart Management**: Alphabetical organization of channel groups
 
-### 📻 Radio en Streaming
-- **Reproducción en segundo plano**: Escucha radio mientras ves IPTV
-- **Gestión de emisoras**: Añade, elimina y organiza tus radios favoritas
-- **Controles completos**: Pausa/reanudar desde cualquier pantalla
-- **Silenciado inteligente**: Audio de video se silencia automáticamente
+### 📻 Streaming Radio
+- **Background Playback**: Listen to radio while watching IPTV
+- **Station Management**: Add, remove and organize your favorite stations
+- **Full Controls**: Pause/resume from any screen
+- **Smart Muting**: Video audio mutes automatically
 
 ### 🔐 VPN
-- **Integración NordVPN**: Conexión/desconexión automática
-- **Configurable**: Activa/desactiva VPN para IPTV desde la configuración
-- **Gestión inteligente**: Solo se conecta cuando es necesario
+- **NordVPN Integration**: Automatic connection/disconnection
+- **Configurable**: Enable/disable VPN for IPTV from settings
+- **Smart Management**: Only connects when needed
 
-### ⚙️ Configuración
-- **Interfaz gráfica**: Todo configurable desde la aplicación
-- **Validación de rutas**: Verifica y crea directorios automáticamente
-- **Persistencia**: Configuración guardada en `config.ini`
+### ⚙️ Settings
+- **Graphical Interface**: Everything configurable from the app
+- **Path Validation**: Verifies and creates directories automatically
+- **Persistence**: Configuration saved in `config.ini`
 
 ---
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### Requisitos previos
-- **Raspberry Pi 4** (recomendado) o cualquier sistema Linux/macOS
+### Prerequisites
+- **Raspberry Pi 4** (recommended) or any Linux/macOS system
 - **Python 3.9+**
-- **mpv** (reproductor multimedia)
-- **NordVPN** instalado (opcional, solo para funciones VPN)
+- **mpv** (media player)
+- **NordVPN** installed (optional, only for VPN features)
 
-### 1. Instalar MPV
+### 1. Install MPV
 
-**En Raspberry Pi / Debian / Ubuntu:**
+**On Raspberry Pi / Debian / Ubuntu:**
 ```bash
 sudo apt update
 sudo apt install mpv
 ```
 
-**En macOS:**
+**On macOS:**
 ```bash
 brew install mpv
 ```
 
-### 2. Clonar el repositorio
+### 2. Clone the repository
 
 ```bash
-git clone https://github.com/tuusuario/RaspIPTV.git
+git clone https://github.com/yourusername/RaspIPTV.git
 cd RaspIPTV
 ```
 
-### 3. Crear entorno virtual
+### 3. Create virtual environment
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-### 4. Instalar dependencias
+### 4. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configuración inicial
+### 5. Initial configuration
 
-Copia el archivo de configuración de ejemplo:
+Copy the example configuration file:
 ```bash
 cp config.ini.example config.ini
 ```
 
-Edita `config.ini` o usa la interfaz gráfica de la aplicación para configurar:
-- Rutas de películas y archivos M3U
-- Credenciales de VPN (si usas NordVPN)
-- API Key de TMDB (opcional, para información de películas)
+Edit `config.ini` or use the app's graphical interface to configure:
+- Movie and M3U file paths
+- VPN credentials (if using NordVPN)
+- TMDB API Key (optional, for movie information)
 
 ---
 
-## 🎮 Uso
+## 🎮 Usage
 
-### Iniciar la aplicación
+### Start the application
 
 ```bash
 python3 run.py
 ```
 
-### Obtener API Key de TMDB (opcional pero recomendado)
+### Get TMDB API Key (optional but recommended)
 
-1. Ve a [https://www.themoviedb.org/](https://www.themoviedb.org/)
-2. Crea una cuenta gratuita
-3. Ve a **Settings → API**
-4. Solicita una API Key (aprobación instantánea)
-5. Copia tu **API Key (v3 auth)**
-6. Pégala en la aplicación: **Configuración → API Key de TMDB**
+1. Go to [https://www.themoviedb.org/](https://www.themoviedb.org/)
+2. Create a free account
+3. Go to **Settings → API**
+4. Request an API Key (instant approval)
+5. Copy your **API Key (v3 auth)**
+6. Paste it in the app: **Settings → TMDB API Key**
 
-### Estructura de archivos esperada
-
-```
-RaspIPTV/
-├── run.py                 # Archivo principal
-├── config.ini             # Configuración (se crea automáticamente)
-├── radios.json            # Lista de radios (se crea automáticamente)
-├── Peliculas/             # Carpeta de películas (configurable)
-│   ├── pelicula1.mp4
-│   ├── pelicula2.mkv
-│   └── ...
-├── Archivos M3U/          # Carpeta de listas IPTV (configurable)
-│   ├── deportes.m3u
-│   ├── noticias.m3u
-│   └── ...
-└── app/                   # Código fuente
-```
-
----
-
-## 🎯 Navegación
-
-### Menú Principal
-- **Ver Películas (Local)**: Accede a tu biblioteca de películas
-- **IPTV**: Navega por tus canales de TV
-- **Actualizar Canales IPTV**: Descarga y actualiza tu lista IPTV
-- **Gestionar Radios**: Añade/elimina emisoras de radio
-- **Configuración**: Ajusta todas las opciones
-
-### Atajos de teclado
-- `q` o `Ctrl+C`: Salir de la pantalla actual
-- `Esc`: Volver atrás
-- `Tab`: Navegar entre elementos
-- `Enter`: Seleccionar
-
----
-
-## 🛠️ Optimizaciones para Raspberry Pi 4
-
-El proyecto está específicamente optimizado para funcionar en Raspberry Pi 4:
-
-### Reproductor MPV
-- **Decodificación por hardware**: `--hwdec=rpi-copy`
-- **GPU optimizado**: `--vo=gpu --gpu-context=drm`
-- **Caché inteligente**: Buffer de 50MB para streaming
-- **Perfil de bajo consumo**: `--profile=fast`
-
-### Código Python
-- **Workers asíncronos**: Operaciones pesadas en hilos separados
-- **Caché de datos**: Reduce búsquedas repetitivas
-- **Expresiones regulares compiladas**: Parseo M3U ultra-rápido
-- **Gestión eficiente de memoria**: Liberación correcta de recursos
-
----
-
-## 📁 Estructura del proyecto
+### Expected file structure
 
 ```
 RaspIPTV/
-├── run.py                          # Punto de entrada
-├── requirements.txt                # Dependencias Python
-├── config.ini                      # Configuración (gitignored)
-├── README.md                       # Este archivo
+├── run.py                 # Main file
+├── config.ini             # Configuration (auto-created)
+├── radios.json            # Radio list (auto-created)
+├── Movies/                # Movies folder (configurable)
+│   ├── movie1.mp4
+│   ├── movie2.mkv
+│   └── ...
+├── M3U Files/             # IPTV lists folder (configurable)
+│   ├── sports.m3u
+│   ├── news.m3u
+│   └── ...
+└── app/                   # Source code
+```
+
+---
+
+## 🎯 Navigation
+
+### Main Menu
+- **Watch Movies (Local)**: Access your movie library
+- **IPTV**: Browse your TV channels
+- **Update IPTV Channels**: Download and update your IPTV list
+- **Manage Radio Stations**: Add/remove radio stations
+- **Settings**: Adjust all options
+
+### Keyboard shortcuts
+- `q` or `Ctrl+C`: Exit current screen
+- `Esc`: Go back
+- `Tab`: Navigate between elements
+- `Enter`: Select
+
+---
+
+## 🛠️ Raspberry Pi 4 Optimizations
+
+The project is specifically optimized to run on Raspberry Pi 4:
+
+### MPV Player
+- **Hardware decoding**: `--hwdec=rpi-copy`
+- **Optimized GPU**: `--vo=gpu --gpu-context=drm`
+- **Smart cache**: 50MB buffer for streaming
+- **Low power profile**: `--profile=fast`
+
+### Python Code
+- **Async workers**: Heavy operations in separate threads
+- **Data caching**: Reduces repetitive lookups
+- **Compiled regular expressions**: Ultra-fast M3U parsing
+- **Efficient memory management**: Proper resource cleanup
+
+---
+
+## 📁 Project structure
+
+```
+RaspIPTV/
+├── run.py                          # Entry point
+├── requirements.txt                # Python dependencies
+├── config.ini                      # Configuration (gitignored)
+├── README.md                       # This file
 │
 ├── app/
-│   ├── core/                       # Lógica de negocio
-│   │   ├── config.py              # Gestión de configuración
-│   │   ├── iptv.py                # Parseo de M3U
-│   │   ├── iptv_refresher.py     # Actualización de canales
-│   │   ├── local_media.py         # Escaneo de películas
-│   │   ├── player.py              # Interfaz con MPV
-│   │   ├── progress.py            # Guardar/reanudar películas
-│   │   ├── radio.py               # Gestión de radios
-│   │   ├── tmdb.py                # API de The Movie Database
-│   │   └── vpn.py                 # Control de NordVPN
+│   ├── core/                       # Business logic
+│   │   ├── config.py              # Configuration management
+│   │   ├── iptv.py                # M3U parsing
+│   │   ├── iptv_refresher.py     # Channel updates
+│   │   ├── local_media.py         # Movie scanning
+│   │   ├── player.py              # MPV interface
+│   │   ├── progress.py            # Save/resume movies
+│   │   ├── radio.py               # Radio management
+│   │   ├── tmdb.py                # The Movie Database API
+│   │   └── vpn.py                 # NordVPN control
 │   │
-│   └── ui/                         # Interfaz de usuario (Textual)
-│       ├── screens/               # Pantallas de la aplicación
+│   └── ui/                         # User interface (Textual)
+│       ├── screens/               # Application screens
 │       │   ├── movie_list_screen.py
 │       │   ├── movie_detail_screen.py
 │       │   ├── iptv_list_screen.py
@@ -198,44 +198,44 @@ RaspIPTV/
 │       │   ├── radio_manager_screen.py
 │       │   ├── settings_screen.py
 │       │   └── ...
-│       └── widgets/               # Componentes reutilizables
+│       └── widgets/               # Reusable components
 ```
 
 ---
 
-## 🔧 Configuración avanzada
+## 🔧 Advanced configuration
 
-### Formato del archivo `config.ini`
+### `config.ini` file format
 
 ```ini
 [PATHS]
-local_media_path = ./Peliculas/
-iptv_folder_path = ./Archivos M3U/
+local_media_path = ./Movies/
+iptv_folder_path = ./M3U Files/
 radio_file_path = radios.json
 
 [VPN]
 enabled_for_iptv = no
 country = Spain
-username = tu_usuario_vpn
-password = tu_password_vpn
+username = your_vpn_username
+password = your_vpn_password
 
 [IPTV]
-source_url = https://tu-proveedor.com/lista.m3u
+source_url = https://your-provider.com/list.m3u
 
 [TMDB]
-api_key = tu_api_key_de_tmdb
+api_key = your_tmdb_api_key
 ```
 
-### Formato del archivo `radios.json`
+### `radios.json` file format
 
 ```json
 [
   {
-    "name": "Radio Nacional",
+    "name": "National Radio",
     "url": "https://radio.example.com/stream.mp3"
   },
   {
-    "name": "Radio Clásica",
+    "name": "Classical Radio",
     "url": "https://clasica.example.com/live"
   }
 ]
@@ -243,86 +243,86 @@ api_key = tu_api_key_de_tmdb
 
 ---
 
-## 🐛 Solución de problemas
+## 🐛 Troubleshooting
 
-### MPV no se encuentra
+### MPV not found
 ```bash
-# Verifica que mpv esté instalado
+# Verify mpv is installed
 which mpv
 
-# Si no está, instálalo
+# If not installed, install it
 sudo apt install mpv
 ```
 
-### La VPN no se conecta
-- Verifica que NordVPN esté instalado: `nordvpn --version`
-- Asegúrate de haber iniciado sesión: `nordvpn login`
-- Comprueba tus credenciales en `config.ini`
+### VPN won't connect
+- Verify NordVPN is installed: `nordvpn --version`
+- Make sure you're logged in: `nordvpn login`
+- Check your credentials in `config.ini`
 
-### Las películas no se muestran
-- Verifica la ruta en Configuración
-- Asegúrate de que la carpeta contenga archivos de video
-- Formatos soportados: `.mp4`, `.mkv`, `.avi`, `.mov`, etc.
+### Movies don't show up
+- Verify the path in Settings
+- Make sure the folder contains video files
+- Supported formats: `.mp4`, `.mkv`, `.avi`, `.mov`, etc.
 
-### No aparece información de películas
-- Verifica que hayas configurado la API Key de TMDB
-- Comprueba tu conexión a internet
-- Los nombres de archivo muy modificados pueden no encontrarse
+### Movie information doesn't appear
+- Verify you've configured the TMDB API Key
+- Check your internet connection
+- Heavily modified filenames may not be found
 
 ---
 
-## 🤝 Contribuciones
+## 🤝 Contributing
 
-¡Las contribuciones son bienvenidas! Si quieres mejorar el proyecto:
+Contributions are welcome! If you want to improve the project:
 
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/MiFeature`)
-3. Commit tus cambios (`git commit -m 'Añadir MiFeature'`)
-4. Push a la rama (`git push origin feature/MiFeature`)
-5. Abre un Pull Request
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/MyFeature`)
+3. Commit your changes (`git commit -m 'Add MyFeature'`)
+4. Push to the branch (`git push origin feature/MyFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📝 TODO / Roadmap
 
-- [ ] Soporte para portadas de películas en la UI
-- [ ] Sistema de favoritos para canales IPTV
-- [ ] Subtítulos automáticos
-- [ ] Integración con Trakt.tv
-- [ ] Control remoto desde móvil
-- [ ] Soporte para múltiples perfiles de usuario
-- [ ] Scraping de EPG para guía de canales
+- [ ] Support for movie posters in the UI
+- [ ] Favorites system for IPTV channels
+- [ ] Automatic subtitles
+- [ ] Trakt.tv integration
+- [ ] Mobile remote control
+- [ ] Multiple user profiles support
+- [ ] EPG scraping for channel guide
 
 ---
 
-## 📜 Licencia
+## 📜 License
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-
----
-
-## 👏 Créditos
-
-- **Textual**: Framework TUI por [Textualize](https://github.com/Textualize/textual)
-- **MPV**: Reproductor multimedia por [mpv.io](https://mpv.io/)
-- **TMDB**: API de películas por [The Movie Database](https://www.themoviedb.org/)
-- **NordVPN Switcher**: Por [kl4mm](https://github.com/kl4mm/NordVPN-switcher)
+This project is under the MIT License. See the `LICENSE` file for more details.
 
 ---
 
-## 📧 Contacto
+## 👏 Credits
 
-¿Preguntas? ¿Sugerencias? ¿Encontraste un bug?
+- **Textual**: TUI Framework by [Textualize](https://github.com/Textualize/textual)
+- **MPV**: Media player by [mpv.io](https://mpv.io/)
+- **TMDB**: Movie API by [The Movie Database](https://www.themoviedb.org/)
+- **NordVPN Switcher**: By [kl4mm](https://github.com/kl4mm/NordVPN-switcher)
 
-- Abre un [Issue](https://github.com/tuusuario/RaspIPTV/issues)
-- Envía un [Pull Request](https://github.com/tuusuario/RaspIPTV/pulls)
+---
+
+## 📧 Contact
+
+Questions? Suggestions? Found a bug?
+
+- Open an [Issue](https://github.com/yourusername/RaspIPTV/issues)
+- Send a [Pull Request](https://github.com/yourusername/RaspIPTV/pulls)
 
 ---
 
 <div align="center">
   
-**Hecho con ❤️ para la comunidad Raspberry Pi**
+**Made with ❤️ for the Raspberry Pi community**
 
-⭐ Si te gusta el proyecto, ¡dale una estrella!
+⭐ If you like the project, give it a star!
 
 </div>
