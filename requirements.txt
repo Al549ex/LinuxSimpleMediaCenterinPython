@@ -6,6 +6,9 @@ textual>=0.47.0
 # Networking & API
 requests>=2.31.0
 
+# QR Code generation
+qrcode[pil]>=7.4.2
+
 # VPN Management
 # NordVPN CLI debe estar instalado en el sistema:
 # Linux: sudo apt install nordvpn

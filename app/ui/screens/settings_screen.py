@@ -2,6 +2,8 @@
 
 import os
 import logging
+import io
+import qrcode
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal, ScrollableContainer
 from textual.screen import Screen
@@ -57,10 +59,18 @@ class SettingsScreen(Screen):
         display: block;
     }
     
-        #vpn_url_container #url_text {
+    #vpn_url_container #url_text {
         width: 100%;
         color: $text;
         text-style: bold;
+    }
+    
+    #qr_code {
+        width: 100%;
+        height: auto;
+        margin: 1 0;
+        text-align: center;
+        color: $text;
     }
     
     #vpn_login_button {
@@ -132,8 +142,10 @@ class SettingsScreen(Screen):
                 with Vertical(id="vpn_url_container"):
                     yield Label("🔗 URL de Autenticación:")
                     yield Static("", id="vpn_url_text")
+                    yield Label("📱 Escanea el código QR:")
+                    yield Static("", id="qr_code")
                     yield Static(
-                        "📋 Copia esta URL y ábrela en tu navegador",
+                        "📋 O copia la URL y ábrela en tu navegador",
                         id="vpn_url_hint"
                     )
 
@@ -172,19 +184,66 @@ class SettingsScreen(Screen):
         except:
             pass
     
+    def _generate_qr_ascii(self, url: str) -> str:
+        """Genera un código QR en formato ASCII art."""
+        try:
+            # Generar QR
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=1,
+                border=2,
+            )
+            qr.add_data(url)
+            qr.make(fit=True)
+            
+            # Convertir a ASCII usando bloques Unicode
+            matrix = qr.get_matrix()
+            lines = []
+            
+            # Usar bloques Unicode para mejor visualización
+            for i in range(0, len(matrix), 2):
+                line = ""
+                for j in range(len(matrix[i])):
+                    top = matrix[i][j] if i < len(matrix) else False
+                    bottom = matrix[i+1][j] if i+1 < len(matrix) else False
+                    
+                    if top and bottom:
+                        line += "█"  # Ambos píxeles llenos
+                    elif top:
+                        line += "▀"  # Solo superior
+                    elif bottom:
+                        line += "▄"  # Solo inferior
+                    else:
+                        line += " "  # Vacío
+                line = line
+                lines.append(line)
+            
+            return "\n".join(lines)
+        except Exception as e:
+            logging.error(f"Error generando QR: {e}")
+            return "⚠️ Error generando código QR"
+    
     def _show_url_container(self, url: str):
-        """Muestra el contenedor de URL con la URL proporcionada."""
+        """Muestra el contenedor de URL con la URL y QR proporcionado."""
         try:
             url_container = self.query_one("#vpn_url_container")
             url_text = self.query_one("#vpn_url_text", Static)
+            qr_widget = self.query_one("#qr_code", Static)
             
+            # Actualizar URL
             url_text.update(url)
+            
+            # Generar y mostrar QR
+            qr_ascii = self._generate_qr_ascii(url)
+            qr_widget.update(qr_ascii)
+            
+            # Mostrar contenedor
             url_container.add_class("visible")
             
             # Hacer scroll hasta el contenedor
             url_container.scroll_visible()
         except Exception as e:
-            import logging
             logging.error(f"Error mostrando URL: {e}")
     
     def _update_vpn_status(self):
