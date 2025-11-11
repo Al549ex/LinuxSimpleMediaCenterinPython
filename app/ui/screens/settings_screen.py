@@ -45,6 +45,24 @@ class SettingsScreen(Screen):
         margin: 1 0;
     }
     
+    #vpn_url_container {
+        border: solid $accent;
+        padding: 1;
+        margin: 1 0;
+        height: auto;
+        display: none;
+    }
+    
+    #vpn_url_container.visible {
+        display: block;
+    }
+    
+    #vpn_url_text {
+        color: $text;
+        text-style: bold;
+        word-wrap: break-word;
+    }
+    
     #vpn_login_button {
         width: 100%;
         margin: 1 0;
@@ -103,12 +121,21 @@ class SettingsScreen(Screen):
 
                 # Botón de login y estado
                 yield Button(
-                    "� Autenticar NordVPN",
+                    "🔐 Autenticar NordVPN",
                     id="vpn_login_button",
                     variant="primary"
                 )
                 
                 yield Static("Verificando estado...", id="vpn_status")
+                
+                # Contenedor para mostrar la URL
+                with Vertical(id="vpn_url_container"):
+                    yield Label("🔗 URL de Autenticación:")
+                    yield Static("", id="vpn_url_text")
+                    yield Static(
+                        "📋 Copia esta URL y ábrela en tu navegador",
+                        id="vpn_url_hint"
+                    )
 
                 yield Label("Usar VPN para IPTV:")
                 yield Switch(
@@ -134,6 +161,31 @@ class SettingsScreen(Screen):
     def on_mount(self) -> None:
         """Carga el estado de autenticación de VPN al montar."""
         self._update_vpn_status()
+        # Ocultar el contenedor de URL al inicio
+        self._hide_url_container()
+    
+    def _hide_url_container(self):
+        """Oculta el contenedor de URL."""
+        try:
+            url_container = self.query_one("#vpn_url_container")
+            url_container.remove_class("visible")
+        except:
+            pass
+    
+    def _show_url_container(self, url: str):
+        """Muestra el contenedor de URL con la URL proporcionada."""
+        try:
+            url_container = self.query_one("#vpn_url_container")
+            url_text = self.query_one("#vpn_url_text", Static)
+            
+            url_text.update(url)
+            url_container.add_class("visible")
+            
+            # Hacer scroll hasta el contenedor
+            url_container.scroll_visible()
+        except Exception as e:
+            import logging
+            logging.error(f"Error mostrando URL: {e}")
     
     def _update_vpn_status(self):
         """Actualiza el texto del estado de VPN."""
@@ -151,6 +203,9 @@ class SettingsScreen(Screen):
     def _handle_vpn_login(self):
         """Maneja el proceso de login de VPN en un worker."""
         self.app.notify("Iniciando autenticación de NordVPN...")
+        
+        # Ocultar URL anterior si existe
+        self._hide_url_container()
         
         # Actualizar el estado
         status_widget = self.query_one("#vpn_status", Static)
@@ -178,11 +233,13 @@ class SettingsScreen(Screen):
                 
                 if success:
                     if "https://" in message:
-                        # Es una URL de autenticación
-                        # Mostrar en notificación más visible
+                        # Es una URL de autenticación - MOSTRAR EN PANTALLA
+                        self._show_url_container(message)
+                        
+                        # También mostrar notificación breve
                         self.app.notify(
-                            f"🔗 Abre esta URL en tu navegador:\n\n{message}\n\n(Notificación visible 60 segundos)",
-                            timeout=60,
+                            "✅ URL mostrada abajo. Ábrela en tu navegador",
+                            timeout=10,
                             severity="information"
                         )
                         
