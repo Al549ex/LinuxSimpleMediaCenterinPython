@@ -5,8 +5,8 @@ from typing import Optional
 
 from textual.app import ComposeResult
 from textual.screen import Screen
-from textual.widgets import Button, Header, Footer, ListView, ListItem, Label
-from textual.containers import Horizontal
+from textual.widgets import Button, Header, Footer, ListView, ListItem, Label, Static
+from textual.containers import Horizontal, ScrollableContainer
 
 from app.core.radio import load_radios, add_radio, delete_radio
 from app.ui.screens.add_radio_screen import AddRadioScreen
@@ -16,17 +16,29 @@ class RadioManagerScreen(Screen):
     """Pantalla optimizada para gestionar radios."""
 
     CSS = """
-    ListView {
+    #radio-list-container {
         height: 1fr;
+    }
+
+    ListView {
         margin: 1;
     }
     
     #button-row {
-        height: auto;
-        margin: 1;
+        dock: bottom;
+        height: 5;
+        width: 100%;
+        padding: 0 1;
+        align: left middle;
+        background: $panel;
+    }
+
+    #button-row > Static {
+        width: 1fr;
     }
     
-    #button-row Button {
+    #button-row > Button {
+        width: auto;
         margin: 0 1;
     }
     """
@@ -37,18 +49,22 @@ class RadioManagerScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True, name="Gestionar Radios")
-        yield ListView(id="radio_list")
-        yield Footer()
+        
+        with ScrollableContainer(id="radio-list-container"):
+            yield ListView(id="radio_list")
         
         with Horizontal(id="button-row"):
-            yield Button("➕ Añadir Nueva", id="add_radio", variant="primary")
+            yield Button("Volver", id="exit_radio_manager", variant="error")
+            yield Static() # Espaciador
+            yield Button("Añadir", id="add_radio", variant="primary")
             yield Button(
-                "🗑️ Eliminar",
+                "Eliminar",
                 id="delete_radio",
                 variant="warning",
                 disabled=True
             )
-            yield Button("⬅️ Volver", id="exit_radio_manager", variant="error")
+        
+        yield Footer()
 
     def on_mount(self) -> None:
         """Carga las radios al montar."""
@@ -62,7 +78,6 @@ class RadioManagerScreen(Screen):
         radios = load_radios()
         
         if not radios:
-            # Mostrar mensaje si no hay radios
             item = ListItem(Label("No hay radios configuradas"))
             item.radio_name = None
             radio_list.append(item)
