@@ -200,7 +200,7 @@ class SettingsScreen(Screen):
     def _hide_url_container(self):
         """Oculta el contenedor de URL."""
         try:
-            # Detener polling si está activo
+            # Stop polling if active
             self._auth_polling = False
             
             url_container = self.query_one("#vpn_url_container")
@@ -225,7 +225,7 @@ class SettingsScreen(Screen):
             matrix = qr.get_matrix()
             lines = []
             
-            # Usar bloques Unicode para mejor visualización
+            # Use Unicode blocks for better visualization
             for i in range(0, len(matrix), 2):
                 line = ""
                 for j in range(len(matrix[i])):
@@ -233,13 +233,13 @@ class SettingsScreen(Screen):
                     bottom = matrix[i+1][j] if i+1 < len(matrix) else False
                     
                     if top and bottom:
-                        line += "█"  # Ambos píxeles llenos
+                        line += "█"  # Both pixels filled
                     elif top:
-                        line += "▀"  # Solo superior
+                        line += "▀"  # Top only
                     elif bottom:
-                        line += "▄"  # Solo inferior
+                        line += "▄"  # Bottom only
                     else:
-                        line += " "  # Vacío
+                        line += " "  # Empty
                 line = line
                 lines.append(line)
             
@@ -339,17 +339,17 @@ class SettingsScreen(Screen):
                 
                 if success:
                     if "https://" in message:
-                        # Es una URL de autenticación - MOSTRAR EN PANTALLA
+                        # It's an authentication URL - SHOW ON SCREEN
                         self._show_url_container(message)
                         
-                        # También mostrar notificación breve
+                        # Also show brief notification
                         self.app.notify(
                             "✅ Escanea el QR o abre la URL. Verificaré automáticamente cuando completes la autenticación...",
                             timeout=10,
                             severity="information"
                         )
                         
-                        # También en log para debugging
+                        # Also log for debugging
                         import logging
                         logging.info(f"URL DE AUTENTICACIÓN: {message}")
                         
@@ -358,7 +358,7 @@ class SettingsScreen(Screen):
                         status_widget.update(f"🔗 Esperando autenticación en navegador... (verificando cada 5s)")
                         status_widget.styles.color = "yellow"
                         
-                        # Iniciar polling automático para verificar cuando se complete
+                        # Start automatic polling to check when completed
                         self._auth_polling = True
                         self.run_worker(
                             self._check_auth_status_worker,
@@ -370,10 +370,10 @@ class SettingsScreen(Screen):
                         self.app.notify(f"✅ {message}", timeout=10)
                         self._update_vpn_status()
                 else:
-                    # Error - mostrar mensaje completo
+                    # Error - show full message
                     self.app.notify(f"❌ Error:\n{message}", severity="error", timeout=20)
                     
-                    # También en log
+                    # Also log
                     import logging
                     logging.error(f"Error en login VPN: {message}")
                     
@@ -382,13 +382,13 @@ class SettingsScreen(Screen):
                 self.app.notify("❌ Error durante la autenticación", severity="error")
                 self._update_vpn_status()
         
-        # Manejar resultado del worker de verificación de autenticación
+        # Handle authentication verification worker result
         elif event.worker.name == "auth_check_worker":
             if event.state == WorkerState.SUCCESS:
                 success, message = event.worker.result
                 
                 if success:
-                    # ¡Autenticación completada!
+                    # Authentication completed!
                     self._auth_polling = False
                     self._hide_url_container()
                     
@@ -451,7 +451,7 @@ class SettingsScreen(Screen):
                 self.app.notify("⚠️ La ruta de archivos M3U no es válida.", severity="warning", timeout=5)
                 return
 
-            # Guardar configuración
+            # Save configuration
             config.set("PATHS", "local_media_path", local_path)
             config.set("PATHS", "iptv_folder_path", iptv_path)
             config.set("IPTV", "source_url", source_url)

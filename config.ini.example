@@ -16,21 +16,21 @@ radio_file_path = radios.json
 enabled_for_iptv = no
 
 # Country to connect to with NordVPN
-# Examples: Spain, United_States, United_Kingdom, Germany, France, etc.
+# Examples: Spain, United_States, United_Kingdom, Germany, France
 # Leave empty for automatic server selection
 country = Spain
 
-# NordVPN Access Token (optional, más seguro que usuario/contraseña)
-# Obtén tu token en: https://my.nordaccount.com/dashboard/nordvpn/access-tokens
-# Pasos:
-# 1. Inicia sesión en https://my.nordaccount.com
-# 2. Ve a "Access Tokens" (Tokens de acceso)
-# 3. Genera un nuevo token
-# 4. Copia el token aquí
+# NordVPN Access Token (recommended for reliable authentication)
+# Get your token at: https://my.nordaccount.com/dashboard/nordvpn/access-tokens
+# Steps:
+# 1. Login to https://my.nordaccount.com
+# 2. Go to Dashboard → NordVPN → Access Tokens
+# 3. Generate a new token and copy it here
+# 4. Save config and click "Authenticate NordVPN" button
 access_token = 
 
-# Nota: Si dejas 'access_token' vacío, se usará el método de login por URL/QR
-# El token es la forma más confiable de autenticación 
+# Note: If 'access_token' is empty, URL/QR authentication method will be used
+# Token authentication is more reliable and instant
 
 [IPTV]
 # Your IPTV provider URL for the "Update Channels" function
@@ -41,4 +41,3 @@ source_url =
 # The Movie Database API Key (optional)
 # Get one free at https://www.themoviedb.org/settings/api
 api_key = 
-

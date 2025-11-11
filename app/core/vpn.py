@@ -7,7 +7,7 @@ from enum import Enum
 
 from app.core.config import config
 
-# --- Definimos los posibles estados de la operación VPN ---
+# VPN operation status codes
 class VPNStatus(Enum):
     SUCCESS = 0
     SKIPPED = 1
@@ -50,7 +50,7 @@ def get_vpn_status() -> dict:
     if not success:
         return {"connected": False, "info": "Error checking status"}
     
-    # Buscar la línea "Status: Connected" o "Status: Disconnected"
+    # Look for "Status: Connected" or "Status: Disconnected"
     is_connected = "Status: Connected" in output
     
     return {
@@ -66,18 +66,18 @@ def connect_vpn() -> VPNStatus:
     Returns:
         VPNStatus: Estado de la operación
     """
-    # Verificar plataforma
+    # Check platform compatibility
     if platform.system() not in ["Linux", "Darwin"]:  # Darwin = macOS
         logging.warning("Plataforma no compatible (se requiere Linux o macOS).")
         return VPNStatus.SKIPPED
     
-    # Verificar si ya está conectado
+    # Check if already connected
     status = get_vpn_status()
     if status["connected"]:
         logging.info("Ya hay una conexión VPN activa.")
         return VPNStatus.SUCCESS
     
-    # Obtener país de configuración
+    # Get country from configuration
     country = config.get("VPN", "country", fallback="").strip()
     
     # Construir comando
@@ -102,12 +102,12 @@ def disconnect_vpn() -> VPNStatus:
     Returns:
         VPNStatus: Estado de la operación
     """
-    # Verificar plataforma
+    # Check platform compatibility
     if platform.system() not in ["Linux", "Darwin"]:
         logging.warning("Plataforma no compatible.")
         return VPNStatus.SKIPPED
     
-    # Verificar si hay conexión activa
+    # Check if there's an active connection
     status = get_vpn_status()
     if not status["connected"]:
         logging.info("No hay conexión VPN activa.")
@@ -203,18 +203,18 @@ def login_vpn() -> tuple[bool, str]:
     Returns:
         tuple[bool, str]: (éxito, url_o_mensaje)
     """
-    # Verificar si hay un token configurado
+    # Check if there's a configured token
     token = config.get("VPN", "access_token", fallback="").strip()
     
     if token:
-        # Intentar login con token
+        # Try login with token
         logging.info("Token encontrado en configuración, usando login con token...")
         return login_with_token(token)
     
-    # Si no hay token, usar el método de URL
+    # If no token, use URL method
     logging.info("No hay token configurado, usando método de URL...")
     
-    # Verificar plataforma
+    # Check platform compatibility
     if platform.system() not in ["Linux", "Darwin"]:
         return False, "Plataforma no compatible (se requiere Linux o macOS)"
     
