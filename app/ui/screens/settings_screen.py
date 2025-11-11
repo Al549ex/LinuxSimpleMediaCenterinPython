@@ -179,34 +179,68 @@ class SettingsScreen(Screen):
                 if success:
                     if "https://" in message:
                         # Es una URL de autenticación
+                        # Mostrar en notificación más visible
                         self.app.notify(
-                            f"✅ Abre esta URL en tu navegador:\n{message}",
-                            timeout=30
+                            f"🔗 Abre esta URL en tu navegador:\n\n{message}\n\n(Notificación visible 60 segundos)",
+                            timeout=60,
+                            severity="information"
                         )
+                        
+                        # También en log para debugging
+                        import logging
+                        logging.info(f"URL DE AUTENTICACIÓN: {message}")
                         
                         # Copiar al portapapeles si es posible
                         try:
                             import subprocess
-                            subprocess.run(
-                                ["pbcopy"],
-                                input=message.encode(),
-                                check=True
-                            )
-                            self.app.notify("📋 URL copiada al portapapeles", timeout=5)
-                        except:
-                            pass
+                            import platform
+                            
+                            if platform.system() == "Darwin":  # macOS
+                                subprocess.run(
+                                    ["pbcopy"],
+                                    input=message.encode(),
+                                    check=True
+                                )
+                                self.app.notify("📋 URL copiada al portapapeles (Cmd+V para pegar)", timeout=10)
+                            elif platform.system() == "Linux":
+                                # Intentar con xclip o xsel
+                                try:
+                                    subprocess.run(
+                                        ["xclip", "-selection", "clipboard"],
+                                        input=message.encode(),
+                                        check=True
+                                    )
+                                    self.app.notify("📋 URL copiada al portapapeles", timeout=5)
+                                except FileNotFoundError:
+                                    try:
+                                        subprocess.run(
+                                            ["xsel", "--clipboard"],
+                                            input=message.encode(),
+                                            check=True
+                                        )
+                                        self.app.notify("📋 URL copiada al portapapeles", timeout=5)
+                                    except FileNotFoundError:
+                                        pass  # No hay xclip ni xsel disponibles
+                        except Exception as e:
+                            import logging
+                            logging.warning(f"No se pudo copiar al portapapeles: {e}")
                         
                         # Actualizar estado
                         status_widget = self.query_one("#vpn_status", Static)
-                        status_widget.update(f"🔗 Abre el navegador y completa la autenticación")
+                        status_widget.update(f"🔗 Completa la autenticación en el navegador")
                         status_widget.styles.color = "yellow"
                     else:
                         # Mensaje informativo (ya autenticado, etc.)
                         self.app.notify(f"✅ {message}", timeout=10)
                         self._update_vpn_status()
                 else:
-                    # Error
-                    self.app.notify(f"❌ {message}", severity="error", timeout=10)
+                    # Error - mostrar mensaje completo
+                    self.app.notify(f"❌ Error:\n{message}", severity="error", timeout=20)
+                    
+                    # También en log
+                    import logging
+                    logging.error(f"Error en login VPN: {message}")
+                    
                     self._update_vpn_status()
             elif event.state == WorkerState.ERROR:
                 self.app.notify("❌ Error durante la autenticación", severity="error")

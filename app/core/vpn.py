@@ -123,6 +123,23 @@ def disconnect_vpn() -> VPNStatus:
         logging.error(f"❌ Error al desconectar VPN: {output}")
         return VPNStatus.FAILED
 
+def check_cli_available() -> bool:
+    """
+    Verifica si el CLI de NordVPN está disponible.
+    
+    Returns:
+        bool: True si el CLI está disponible
+    """
+    try:
+        result = subprocess.run(
+            ["nordvpn", "--version"],
+            capture_output=True,
+            timeout=5
+        )
+        return result.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+
 def login_vpn() -> tuple[bool, str]:
     """
     Inicia el proceso de login de NordVPN y devuelve la URL de autenticación.
@@ -135,55 +152,83 @@ def login_vpn() -> tuple[bool, str]:
         return False, "Plataforma no compatible (se requiere Linux o macOS)"
     
     try:
-        # Ejecutar nordvpn login
+        # Ejecutar nordvpn login y capturar toda la salida
         logging.info("Iniciando proceso de login de NordVPN...")
-        process = subprocess.Popen(
+        result = subprocess.run(
             ["nordvpn", "login"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            capture_output=True,
+            text=True,
+            timeout=30
         )
         
-        # Leer la salida en tiempo real para capturar la URL
+        # Combinar stdout y stderr (NordVPN puede usar stderr para la URL)
+        full_output = result.stdout + "\n" + result.stderr
+        output_lines = [line.strip() for line in full_output.splitlines() if line.strip()]
+        
+        logging.info(f"Salida completa de nordvpn login:\n{full_output}")
+        logging.info(f"Return code: {result.returncode}")
+        
+        # Buscar la URL en toda la salida con múltiples patrones
+        import re
         url = None
-        output_lines = []
         
-        # Leer stdout
-        if process.stdout:
-            for line in process.stdout:
-                output_lines.append(line.strip())
-                logging.debug(f"NordVPN login output: {line.strip()}")
-                
-                # Buscar la URL en la salida
-                if "https://" in line:
-                    # Extraer la URL
-                    import re
-                    url_match = re.search(r'https://[^\s]+', line)
-                    if url_match:
-                        url = url_match.group(0)
-                        logging.info(f"URL de autenticación encontrada: {url}")
+        # Patrón 1: URL completa en cualquier línea
+        url_pattern = re.compile(r'https://[^\s\)\]\>]+')
+        for line in output_lines:
+            matches = url_pattern.findall(line)
+            if matches:
+                url = matches[0].rstrip('.,;:\'"')
+                logging.info(f"✅ URL encontrada (patrón 1): {url}")
+                break
         
-        # Esperar a que termine el proceso (con timeout)
-        try:
-            process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            logging.warning("El proceso de login tardó demasiado.")
+        # Patrón 2: Si no encontramos, buscar en toda la salida completa
+        if not url:
+            matches = url_pattern.findall(full_output)
+            if matches:
+                url = matches[0].rstrip('.,;:\'"')
+                logging.info(f"✅ URL encontrada (patrón 2): {url}")
+        
+        # Verificar si ya está autenticado
+        if "already logged in" in full_output.lower() or "you are already logged in" in full_output.lower():
+            return True, "Ya estás autenticado en NordVPN"
         
         if url:
+            # Limpiar la URL de posibles caracteres ANSI o de escape
+            url = re.sub(r'\x1b\[[0-9;]*m', '', url)  # Eliminar códigos ANSI
+            url = url.strip()
+            logging.info(f"✅ URL final limpia: {url}")
             return True, url
         elif output_lines:
-            # Si no encontramos URL pero hay salida, devolverla
-            full_output = "\n".join(output_lines)
-            if "already logged in" in full_output.lower():
-                return True, "Ya estás autenticado en NordVPN"
-            return True, full_output
+            # Devolver toda la salida para debugging
+            logging.warning("No se encontró URL en la salida")
+            return False, f"No se encontró URL. Salida completa:\n{full_output}"
         else:
-            return False, "No se pudo obtener la URL de autenticación"
+            return False, "No se obtuvo respuesta de nordvpn login"
             
+    except subprocess.TimeoutExpired:
+        logging.error("El comando nordvpn login tardó demasiado tiempo.")
+        return False, "Timeout: nordvpn login tardó más de 30 segundos"
     except FileNotFoundError:
         logging.error("NordVPN CLI no está instalado.")
-        return False, "NordVPN CLI no está instalado. Instálalo con 'brew install nordvpn' (macOS) o desde nordvpn.com/download (Linux)"
+        
+        # Mensaje específico por plataforma
+        if platform.system() == "Darwin":  # macOS
+            return False, (
+                "❌ NordVPN CLI no disponible en macOS\n\n"
+                "💡 Opciones:\n"
+                "1. Usa la app GUI de NordVPN (recomendado)\n"
+                "   - Abre NordVPN desde Aplicaciones\n"
+                "   - Conecta manualmente antes de usar IPTV\n\n"
+                "2. El CLI funciona mejor en Linux/Raspberry Pi\n\n"
+                "Consulta MACOS_VPN_NOTE.md para más info"
+            )
+        else:  # Linux
+            return False, (
+                "❌ NordVPN CLI no está instalado\n\n"
+                "Instala con:\n"
+                "sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)\n\n"
+                "O visita: nordvpn.com/download/linux"
+            )
     except Exception as e:
         logging.error(f"Error al ejecutar nordvpn login: {e}")
         return False, f"Error: {str(e)}"
