@@ -8,6 +8,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Input, Label, Switch, Static
 
 from app.core.config import config
+from app.core.vpn import check_login_status, login_vpn
 
 class SettingsScreen(Screen):
     """Pantalla de configuración optimizada con validación."""
@@ -31,6 +32,22 @@ class SettingsScreen(Screen):
     
     Input {
         margin-bottom: 1;
+    }
+    
+    #vpn_note {
+        color: $text-muted;
+        text-style: italic;
+        margin: 1 0;
+    }
+    
+    #vpn_status {
+        color: $success;
+        margin: 1 0;
+    }
+    
+    #vpn_login_button {
+        width: 100%;
+        margin: 1 0;
     }
     
     #button-row {
@@ -84,10 +101,14 @@ class SettingsScreen(Screen):
                     placeholder="Spain, United_States, etc. (vacío = automático)"
                 )
 
-                yield Static(
-                    "💡 Nota: Usa 'nordvpn login' en terminal para autenticarte",
-                    id="vpn_note"
+                # Botón de login y estado
+                yield Button(
+                    "� Autenticar NordVPN",
+                    id="vpn_login_button",
+                    variant="primary"
                 )
+                
+                yield Static("Verificando estado...", id="vpn_status")
 
                 yield Label("Usar VPN para IPTV:")
                 yield Switch(
@@ -110,6 +131,87 @@ class SettingsScreen(Screen):
         
         yield Footer()
 
+    def on_mount(self) -> None:
+        """Carga el estado de autenticación de VPN al montar."""
+        self._update_vpn_status()
+    
+    def _update_vpn_status(self):
+        """Actualiza el texto del estado de VPN."""
+        is_logged_in, message = check_login_status()
+        
+        status_widget = self.query_one("#vpn_status", Static)
+        
+        if is_logged_in:
+            status_widget.update(f"✅ Estado: {message}")
+            status_widget.styles.color = "green"
+        else:
+            status_widget.update(f"❌ Estado: {message}")
+            status_widget.styles.color = "orange"
+    
+    def _handle_vpn_login(self):
+        """Maneja el proceso de login de VPN en un worker."""
+        self.app.notify("Iniciando autenticación de NordVPN...")
+        
+        # Actualizar el estado
+        status_widget = self.query_one("#vpn_status", Static)
+        status_widget.update("🔄 Autenticando...")
+        status_widget.styles.color = "yellow"
+        
+        # Ejecutar login en un worker
+        self.run_worker(
+            self._vpn_login_worker,
+            thread=True,
+            name="vpn_login_worker"
+        )
+    
+    def _vpn_login_worker(self):
+        """Worker que ejecuta el login de VPN."""
+        return login_vpn()
+    
+    def on_worker_state_changed(self, event) -> None:
+        """Maneja el resultado del worker de login."""
+        from textual.worker import WorkerState
+        
+        if event.worker.name == "vpn_login_worker":
+            if event.state == WorkerState.SUCCESS:
+                success, message = event.worker.result
+                
+                if success:
+                    if "https://" in message:
+                        # Es una URL de autenticación
+                        self.app.notify(
+                            f"✅ Abre esta URL en tu navegador:\n{message}",
+                            timeout=30
+                        )
+                        
+                        # Copiar al portapapeles si es posible
+                        try:
+                            import subprocess
+                            subprocess.run(
+                                ["pbcopy"],
+                                input=message.encode(),
+                                check=True
+                            )
+                            self.app.notify("📋 URL copiada al portapapeles", timeout=5)
+                        except:
+                            pass
+                        
+                        # Actualizar estado
+                        status_widget = self.query_one("#vpn_status", Static)
+                        status_widget.update(f"🔗 Abre el navegador y completa la autenticación")
+                        status_widget.styles.color = "yellow"
+                    else:
+                        # Mensaje informativo (ya autenticado, etc.)
+                        self.app.notify(f"✅ {message}", timeout=10)
+                        self._update_vpn_status()
+                else:
+                    # Error
+                    self.app.notify(f"❌ {message}", severity="error", timeout=10)
+                    self._update_vpn_status()
+            elif event.state == WorkerState.ERROR:
+                self.app.notify("❌ Error durante la autenticación", severity="error")
+                self._update_vpn_status()
+
     def _validate_path(self, path: str) -> bool:
         """Valida que una ruta sea accesible o pueda ser creada."""
         if not path:
@@ -122,6 +224,10 @@ class SettingsScreen(Screen):
         return os.path.isdir(parent)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "vpn_login_button":
+            self._handle_vpn_login()
+            return
+        
         if event.button.id == "save_settings":
             # Obtener valores
             local_path = self.query_one("#local_media_path", Input).value.strip()
