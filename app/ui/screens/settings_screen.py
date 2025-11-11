@@ -57,10 +57,10 @@ class SettingsScreen(Screen):
         display: block;
     }
     
-    #vpn_url_text {
+        #vpn_url_container #url_text {
+        width: 100%;
         color: $text;
         text-style: bold;
-        word-wrap: break-word;
     }
     
     #vpn_login_button {
