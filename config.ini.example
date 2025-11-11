@@ -20,9 +20,17 @@ enabled_for_iptv = no
 # Leave empty for automatic server selection
 country = Spain
 
-# Note: NordVPN credentials are managed via CLI
-# Run 'nordvpn login' to authenticate (only needed once)
-# Run 'nordvpn set technology nordlynx' for better performance (recommended) 
+# NordVPN Access Token (optional, más seguro que usuario/contraseña)
+# Obtén tu token en: https://my.nordaccount.com/dashboard/nordvpn/access-tokens
+# Pasos:
+# 1. Inicia sesión en https://my.nordaccount.com
+# 2. Ve a "Access Tokens" (Tokens de acceso)
+# 3. Genera un nuevo token
+# 4. Copia el token aquí
+access_token = 
+
+# Nota: Si dejas 'access_token' vacío, se usará el método de login por URL/QR
+# El token es la forma más confiable de autenticación 
 
 [IPTV]
 # Your IPTV provider URL for the "Update Channels" function

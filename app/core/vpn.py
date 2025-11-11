@@ -140,13 +140,80 @@ def check_cli_available() -> bool:
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
 
+def login_with_token(token: str) -> tuple[bool, str]:
+    """
+    Inicia sesión en NordVPN usando un token de acceso.
+    
+    Args:
+        token: Token de acceso de NordVPN
+        
+    Returns:
+        tuple[bool, str]: (éxito, mensaje)
+    """
+    # Verificar plataforma
+    if platform.system() not in ["Linux", "Darwin"]:
+        return False, "Plataforma no compatible (se requiere Linux o macOS)"
+    
+    if not token or not token.strip():
+        return False, "Token vacío"
+    
+    try:
+        logging.info("Iniciando login con token de acceso...")
+        result = subprocess.run(
+            ["nordvpn", "login", "--token", token.strip()],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        full_output = result.stdout + "\n" + result.stderr
+        logging.info(f"Resultado del login con token: {full_output}")
+        
+        if result.returncode == 0:
+            # Login exitoso
+            logging.info("✅ Login con token exitoso")
+            
+            # Verificar el estado
+            is_logged_in, message = check_login_status()
+            if is_logged_in:
+                return True, f"Autenticación exitosa: {message}"
+            else:
+                return True, "Login completado"
+        else:
+            # Error en el login
+            error_msg = full_output.strip()
+            if "invalid" in error_msg.lower() or "expired" in error_msg.lower():
+                return False, "Token inválido o expirado. Genera un nuevo token en https://my.nordaccount.com"
+            return False, f"Error al autenticar con token: {error_msg}"
+            
+    except subprocess.TimeoutExpired:
+        logging.error("El comando nordvpn login --token tardó demasiado tiempo.")
+        return False, "Timeout: el login tardó más de 30 segundos"
+    except FileNotFoundError:
+        return False, "NordVPN CLI no está instalado"
+    except Exception as e:
+        logging.error(f"Error al ejecutar nordvpn login --token: {e}")
+        return False, f"Error: {str(e)}"
+
 def login_vpn() -> tuple[bool, str]:
     """
-    Inicia el proceso de login de NordVPN y devuelve la URL de autenticación.
+    Inicia el proceso de login de NordVPN.
+    Si hay un token configurado, lo usa. Si no, genera una URL de autenticación.
     
     Returns:
         tuple[bool, str]: (éxito, url_o_mensaje)
     """
+    # Verificar si hay un token configurado
+    token = config.get("VPN", "access_token", fallback="").strip()
+    
+    if token:
+        # Intentar login con token
+        logging.info("Token encontrado en configuración, usando login con token...")
+        return login_with_token(token)
+    
+    # Si no hay token, usar el método de URL
+    logging.info("No hay token configurado, usando método de URL...")
+    
     # Verificar plataforma
     if platform.system() not in ["Linux", "Darwin"]:
         return False, "Plataforma no compatible (se requiere Linux o macOS)"
