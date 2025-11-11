@@ -16,11 +16,13 @@ radio_file_path = radios.json
 enabled_for_iptv = no
 
 # Country to connect to with NordVPN
+# Examples: Spain, United_States, United_Kingdom, Germany, France, etc.
+# Leave empty for automatic server selection
 country = Spain
 
-# NordVPN credentials (leave empty if not using VPN)
-username = 
-password = 
+# Note: NordVPN credentials are managed via CLI
+# Run 'nordvpn login' to authenticate (only needed once)
+# Run 'nordvpn set technology nordlynx' for better performance (recommended) 
 
 [IPTV]
 # Your IPTV provider URL for the "Update Channels" function

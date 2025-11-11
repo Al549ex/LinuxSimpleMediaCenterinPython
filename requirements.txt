@@ -7,7 +7,11 @@ textual>=0.47.0
 requests>=2.31.0
 
 # VPN Management
-nordvpn-switcher>=0.3.0
+# NordVPN CLI debe estar instalado en el sistema:
+# Linux: sudo apt install nordvpn
+# macOS: brew install nordvpn
+# Autenticación: nordvpn login
+# Configuración: nordvpn set technology nordlynx (recomendado para mejor rendimiento)
 
 # Standard library dependencies (included in Python 3.9+)
 # No need to install separately:

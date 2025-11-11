@@ -77,26 +77,16 @@ class SettingsScreen(Screen):
                     placeholder="https://ejemplo.com/lista.m3u"
                 )
                 
-                yield Label("País para la VPN:")
+                yield Label("País para la VPN (opcional):")
                 yield Input(
                     config.get("VPN", "country", fallback="Spain"),
                     id="vpn_country",
-                    placeholder="Spain"
+                    placeholder="Spain, United_States, etc. (vacío = automático)"
                 )
 
-                yield Label("Usuario de la VPN:")
-                yield Input(
-                    config.get("VPN", "username", fallback=""),
-                    id="vpn_username",
-                    placeholder="Usuario"
-                )
-
-                yield Label("Contraseña de la VPN:")
-                yield Input(
-                    config.get("VPN", "password", fallback=""),
-                    id="vpn_password",
-                    placeholder="Contraseña",
-                    password=True
+                yield Static(
+                    "💡 Nota: Usa 'nordvpn login' en terminal para autenticarte",
+                    id="vpn_note"
                 )
 
                 yield Label("Usar VPN para IPTV:")
@@ -138,8 +128,6 @@ class SettingsScreen(Screen):
             iptv_path = self.query_one("#iptv_folder_path", Input).value.strip()
             source_url = self.query_one("#source_url", Input).value.strip()
             vpn_country = self.query_one("#vpn_country", Input).value.strip()
-            vpn_username = self.query_one("#vpn_username", Input).value.strip()
-            vpn_password = self.query_one("#vpn_password", Input).value
             vpn_enabled = self.query_one("#vpn_for_iptv", Switch).value
             tmdb_api_key = self.query_one("#tmdb_api_key", Input).value.strip()
 
@@ -157,8 +145,6 @@ class SettingsScreen(Screen):
             config.set("PATHS", "iptv_folder_path", iptv_path)
             config.set("IPTV", "source_url", source_url)
             config.set("VPN", "country", vpn_country)
-            config.set("VPN", "username", vpn_username)
-            config.set("VPN", "password", vpn_password)
             config.set("VPN", "enabled_for_iptv", "yes" if vpn_enabled else "no")
             config.set("TMDB", "api_key", tmdb_api_key)
 
