@@ -79,7 +79,7 @@ class M3uListScreen(Screen):
                 name=f"vpn_connector_{button_id}" 
             )
 
-    def on_worker_state_changed(self, event: WorkerState.Changed) -> None:
+    def on_worker_state_changed(self, event) -> None:
         """Escucha cuando un worker ha terminado."""
         if event.worker.name.startswith("vpn_connector_"):
             if event.state == WorkerState.SUCCESS:
