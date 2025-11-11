@@ -4,6 +4,7 @@ import os
 import logging
 import io
 import qrcode
+import time
 from textual.app import ComposeResult
 from textual.containers import Vertical, Horizontal, ScrollableContainer
 from textual.screen import Screen
@@ -142,10 +143,10 @@ class SettingsScreen(Screen):
                 with Vertical(id="vpn_url_container"):
                     yield Label("🔗 URL de Autenticación:")
                     yield Static("", id="vpn_url_text")
-                    yield Label("📱 Escanea el código QR:")
+                    yield Label("📱 Escanea el código QR con tu móvil:")
                     yield Static("", id="qr_code")
                     yield Static(
-                        "📋 O copia la URL y ábrela en tu navegador",
+                        "✨ La aplicación verificará automáticamente cada 5 segundos cuando completes la autenticación",
                         id="vpn_url_hint"
                     )
 
@@ -175,10 +176,15 @@ class SettingsScreen(Screen):
         self._update_vpn_status()
         # Ocultar el contenedor de URL al inicio
         self._hide_url_container()
+        # Variable para controlar el polling
+        self._auth_polling = False
     
     def _hide_url_container(self):
         """Oculta el contenedor de URL."""
         try:
+            # Detener polling si está activo
+            self._auth_polling = False
+            
             url_container = self.query_one("#vpn_url_container")
             url_container.remove_class("visible")
         except:
@@ -282,6 +288,29 @@ class SettingsScreen(Screen):
         """Worker que ejecuta el login de VPN."""
         return login_vpn()
     
+    def _check_auth_status_worker(self):
+        """Worker que verifica periódicamente si la autenticación se completó."""
+        max_attempts = 60  # 60 intentos = 5 minutos (5 segundos por intento)
+        attempt = 0
+        
+        while self._auth_polling and attempt < max_attempts:
+            time.sleep(5)  # Esperar 5 segundos entre verificaciones
+            
+            if not self._auth_polling:
+                break
+                
+            is_logged_in, message = check_login_status()
+            
+            if is_logged_in:
+                # ¡Autenticación completada!
+                return True, message
+            
+            attempt += 1
+            logging.info(f"Verificando autenticación... intento {attempt}/{max_attempts}")
+        
+        # Timeout o cancelado
+        return False, "Tiempo de espera agotado o verificación cancelada"
+    
     def on_worker_state_changed(self, event) -> None:
         """Maneja el resultado del worker de login."""
         from textual.worker import WorkerState
@@ -297,7 +326,7 @@ class SettingsScreen(Screen):
                         
                         # También mostrar notificación breve
                         self.app.notify(
-                            "✅ URL mostrada abajo. Ábrela en tu navegador",
+                            "✅ Escanea el QR o abre la URL. Verificaré automáticamente cuando completes la autenticación...",
                             timeout=10,
                             severity="information"
                         )
@@ -306,45 +335,18 @@ class SettingsScreen(Screen):
                         import logging
                         logging.info(f"URL DE AUTENTICACIÓN: {message}")
                         
-                        # Copiar al portapapeles si es posible
-                        try:
-                            import subprocess
-                            import platform
-                            
-                            if platform.system() == "Darwin":  # macOS
-                                subprocess.run(
-                                    ["pbcopy"],
-                                    input=message.encode(),
-                                    check=True
-                                )
-                                self.app.notify("📋 URL copiada al portapapeles (Cmd+V para pegar)", timeout=10)
-                            elif platform.system() == "Linux":
-                                # Intentar con xclip o xsel
-                                try:
-                                    subprocess.run(
-                                        ["xclip", "-selection", "clipboard"],
-                                        input=message.encode(),
-                                        check=True
-                                    )
-                                    self.app.notify("📋 URL copiada al portapapeles", timeout=5)
-                                except FileNotFoundError:
-                                    try:
-                                        subprocess.run(
-                                            ["xsel", "--clipboard"],
-                                            input=message.encode(),
-                                            check=True
-                                        )
-                                        self.app.notify("📋 URL copiada al portapapeles", timeout=5)
-                                    except FileNotFoundError:
-                                        pass  # No hay xclip ni xsel disponibles
-                        except Exception as e:
-                            import logging
-                            logging.warning(f"No se pudo copiar al portapapeles: {e}")
-                        
                         # Actualizar estado
                         status_widget = self.query_one("#vpn_status", Static)
-                        status_widget.update(f"🔗 Completa la autenticación en el navegador")
+                        status_widget.update(f"🔗 Esperando autenticación en navegador... (verificando cada 5s)")
                         status_widget.styles.color = "yellow"
+                        
+                        # Iniciar polling automático para verificar cuando se complete
+                        self._auth_polling = True
+                        self.run_worker(
+                            self._check_auth_status_worker,
+                            thread=True,
+                            name="auth_check_worker"
+                        )
                     else:
                         # Mensaje informativo (ya autenticado, etc.)
                         self.app.notify(f"✅ {message}", timeout=10)
@@ -361,6 +363,40 @@ class SettingsScreen(Screen):
             elif event.state == WorkerState.ERROR:
                 self.app.notify("❌ Error durante la autenticación", severity="error")
                 self._update_vpn_status()
+        
+        # Manejar resultado del worker de verificación de autenticación
+        elif event.worker.name == "auth_check_worker":
+            if event.state == WorkerState.SUCCESS:
+                success, message = event.worker.result
+                
+                if success:
+                    # ¡Autenticación completada!
+                    self._auth_polling = False
+                    self._hide_url_container()
+                    
+                    self.app.notify(
+                        f"🎉 ¡Autenticación completada exitosamente!\nCuenta: {message}",
+                        severity="information",
+                        timeout=10
+                    )
+                    
+                    self._update_vpn_status()
+                else:
+                    # Timeout o error
+                    self._auth_polling = False
+                    
+                    status_widget = self.query_one("#vpn_status", Static)
+                    status_widget.update("⏱️ Tiempo de espera agotado. Verifica manualmente o intenta de nuevo.")
+                    status_widget.styles.color = "orange"
+                    
+                    self.app.notify(
+                        "⏱️ No se detectó autenticación. Si ya iniciaste sesión, presiona 'Autenticar' de nuevo para verificar.",
+                        severity="warning",
+                        timeout=15
+                    )
+            elif event.state == WorkerState.CANCELLED:
+                self._auth_polling = False
+                logging.info("Verificación de autenticación cancelada")
 
     def _validate_path(self, path: str) -> bool:
         """Valida que una ruta sea accesible o pueda ser creada."""
