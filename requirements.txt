@@ -7,7 +7,7 @@ textual>=0.47.0
 requests>=2.31.0
 
 # VPN Management
-nordvpn-switcher>=1.1.1
+nordvpn-switcher>=0.3.0
 
 # Standard library dependencies (included in Python 3.9+)
 # No need to install separately:
