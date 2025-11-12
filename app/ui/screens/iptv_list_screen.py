@@ -28,7 +28,7 @@ class IptvListScreen(Screen):
     }
     """
 
-    def __init__(self, channels: List[Dict[str, str]], **kwargs):
+    def __init__(self, channels: List, **kwargs):
         super().__init__(**kwargs)
         # Optimización: usar diccionario en lugar de list comprehension
         self.channel_map: Dict[str, str] = {}
@@ -36,8 +36,8 @@ class IptvListScreen(Screen):
         
         for i, channel in enumerate(channels):
             button_id = f"channel_{i}"
-            self.channel_map[button_id] = channel['url']
-            self.channel_names[button_id] = channel['name']
+            self.channel_map[button_id] = channel.url
+            self.channel_names[button_id] = channel.name
         
         self.selected_channel_url: Optional[str] = None
         self.selected_channel_name: Optional[str] = None
