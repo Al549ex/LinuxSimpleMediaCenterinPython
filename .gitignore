@@ -30,6 +30,7 @@ venv/
 env/
 ENV/
 .venv
+.sh
 
 # Configuration Files (contienen información sensible)
 config.ini
