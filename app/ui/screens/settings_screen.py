@@ -344,7 +344,7 @@ class SettingsScreen(Screen):
                         
                         # Also show brief notification
                         self.app.notify(
-                            "✅ Escanea el QR o abre la URL. Verificaré automáticamente cuando completes la autenticación...",
+                            "Escanea el QR o abre la URL. Verificaré automáticamente cuando completes la autenticación...",
                             timeout=10,
                             severity="information"
                         )
@@ -367,11 +367,11 @@ class SettingsScreen(Screen):
                         )
                     else:
                         # Mensaje informativo (ya autenticado, etc.)
-                        self.app.notify(f"✅ {message}", timeout=10)
+                        self.app.notify(f"{message}", timeout=10)
                         self._update_vpn_status()
                 else:
                     # Error - show full message
-                    self.app.notify(f"❌ Error:\n{message}", severity="error", timeout=20)
+                    self.app.notify(f"Error:\n{message}", severity="error", timeout=20)
                     
                     # Also log
                     import logging
@@ -379,7 +379,7 @@ class SettingsScreen(Screen):
                     
                     self._update_vpn_status()
             elif event.state == WorkerState.ERROR:
-                self.app.notify("❌ Error durante la autenticación", severity="error")
+                self.app.notify("Error durante la autenticación", severity="error")
                 self._update_vpn_status()
         
         # Handle authentication verification worker result
@@ -393,7 +393,7 @@ class SettingsScreen(Screen):
                     self._hide_url_container()
                     
                     self.app.notify(
-                        f"🎉 ¡Autenticación completada exitosamente!\nCuenta: {message}",
+                        f"Autenticación completada exitosamente!\nCuenta: {message}",
                         severity="information",
                         timeout=10
                     )
@@ -408,7 +408,7 @@ class SettingsScreen(Screen):
                     status_widget.styles.color = "orange"
                     
                     self.app.notify(
-                        "⏱️ No se detectó autenticación. Si ya iniciaste sesión, presiona 'Autenticar' de nuevo para verificar.",
+                        "No se detectó autenticación. Si ya iniciaste sesión, presiona 'Autenticar' de nuevo para verificar.",
                         severity="warning",
                         timeout=15
                     )
@@ -444,11 +444,11 @@ class SettingsScreen(Screen):
 
             # Validar rutas
             if not self._validate_path(local_path):
-                self.app.notify("⚠️ La ruta multimedia local no es válida.", severity="warning", timeout=5)
+                self.app.notify("La ruta multimedia local no es válida.", severity="warning", timeout=5)
                 return
 
             if not self._validate_path(iptv_path):
-                self.app.notify("⚠️ La ruta de archivos M3U no es válida.", severity="warning", timeout=5)
+                self.app.notify("La ruta de archivos M3U no es válida.", severity="warning", timeout=5)
                 return
 
             # Save configuration
@@ -469,10 +469,10 @@ class SettingsScreen(Screen):
                         except OSError as e:
                             logging.error(f"Error al crear directorio {path}: {e}")
                 
-                self.app.notify("✅ Configuración guardada correctamente.")
+                self.app.notify("Configuración guardada correctamente.")
                 self.app.pop_screen()
             else:
-                self.app.notify("❌ Error al guardar la configuración.", severity="error")
+                self.app.notify("Error al guardar la configuración.", severity="error")
 
         elif event.button.id == "exit_settings":
             self.app.pop_screen()

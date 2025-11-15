@@ -72,7 +72,7 @@ class M3uListScreen(Screen):
                 self._open_channel_list(file_name)
                 return
 
-            self.app.notify("🔌 Conectando a la VPN...")
+            self.app.notify("Conectando a la VPN...")
             self.run_worker(
                 lambda: (connect_vpn(), file_name),
                 thread=True,
@@ -92,9 +92,9 @@ class M3uListScreen(Screen):
         """Se llama cuando la conexión VPN ha terminado."""
         vpn_status, file_name = result
         if vpn_status == VPNStatus.SUCCESS:
-            self.app.notify("✅ VPN conectada. Abriendo canales...")
+            self.app.notify("VPN conectada. Abriendo canales...")
         else:
-            self.app.notify("❌ Error al conectar a la VPN. Abriendo canales de todas formas...", severity="error")
+            self.app.notify("Error al conectar a la VPN. Abriendo canales de todas formas...", severity="error")
         
         self._open_channel_list(file_name)
 

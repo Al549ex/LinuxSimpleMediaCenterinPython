@@ -105,11 +105,11 @@ class RadioManagerScreen(Screen):
             name, url = data.get('name'), data.get('url')
             if name and url:
                 if add_radio(name, url):
-                    self.app.notify(f"✅ Radio '{name}' añadida.")
+                    self.app.notify(f"Radio '{name}' añadida.")
                     self.refresh_radio_list()
                 else:
                     self.app.notify(
-                        f"❌ Error: ¿La radio '{name}' ya existe?",
+                        f"Error: ¿La radio '{name}' ya existe?",
                         severity="error"
                     )
 
@@ -117,10 +117,10 @@ class RadioManagerScreen(Screen):
         """Callback tras confirmar eliminación."""
         if should_delete and self.selected_radio_name:
             if delete_radio(self.selected_radio_name):
-                self.app.notify(f"✅ Radio '{self.selected_radio_name}' eliminada.")
+                self.app.notify(f"Radio '{self.selected_radio_name}' eliminada.")
                 self.refresh_radio_list()
             else:
-                self.app.notify("❌ Error al eliminar.", severity="error")
+                self.app.notify("Error al eliminar.", severity="error")
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Gestiona botones."""

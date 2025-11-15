@@ -95,10 +95,10 @@ class MediaCenterApp(App):
             )
             self.is_radio_paused = False
             time.sleep(0.5)
-            self.notify("📻 Radio iniciada.")
+            self.notify("Radio iniciada.")
         except Exception as e:
             logging.error(f"Error al iniciar radio: {e}")
-            self.notify("❌ Error al iniciar radio.", severity="error")
+            self.notify("Error al iniciar radio.", severity="error")
 
     def _stop_radio_worker(self):
         """Worker que detiene la radio."""
@@ -118,7 +118,7 @@ class MediaCenterApp(App):
                 except OSError as e:
                     logging.error(f"Error al eliminar socket: {e}")
 
-            self.call_from_thread(self.notify, "📻 Radio detenida.")
+            self.call_from_thread(self.notify, "Radio detenida.")
 
     def stop_radio(self):
         """Detiene la radio."""
@@ -144,24 +144,24 @@ class MediaCenterApp(App):
         self.is_radio_paused = not self.is_radio_paused
         command = {"command": ["set_property", "pause", self.is_radio_paused]}
         self._send_mpv_command(command)
-        self.notify("⏸️ Radio pausada." if self.is_radio_paused else "▶️ Radio reanudada.")
+        self.notify("Radio pausada." if self.is_radio_paused else "Radio reanudada.")
 
     # --- Worker para actualizar canales ---
     
     def _run_channel_refresh(self):
         """Worker que actualiza los canales IPTV."""
-        self.call_from_thread(self.notify, "🔌 Conectando a la VPN...")
+        self.call_from_thread(self.notify, "Conectando a la VPN...")
         vpn_status = connect_vpn()
 
         if vpn_status == VPNStatus.FAILED:
-            self.call_from_thread(self.notify, "❌ Error al conectar VPN. Abortando.", severity="error")
+            self.call_from_thread(self.notify, "Error al conectar VPN. Abortando.", severity="error")
             return
         elif vpn_status == VPNStatus.SKIPPED:
-            self.call_from_thread(self.notify, "⚠️ Conexión VPN omitida.", severity="warning")
+            self.call_from_thread(self.notify, "Conexión VPN omitida.", severity="warning")
         else:
-            self.call_from_thread(self.notify, "✅ VPN conectada.")
+            self.call_from_thread(self.notify, "VPN conectada.")
 
-        self.call_from_thread(self.notify, "🔄 Descargando canales...")
+        self.call_from_thread(self.notify, "Descargando canales...")
         
         source_url = config.get("IPTV", "source_url")
         output_dir = config.get("PATHS", "iptv_folder_path")
@@ -183,9 +183,9 @@ class MediaCenterApp(App):
             )
         finally:
             if vpn_status == VPNStatus.SUCCESS:
-                self.call_from_thread(self.notify, "🔌 Desconectando VPN...")
+                self.call_from_thread(self.notify, "Desconectando VPN...")
                 disconnect_vpn()
-                self.call_from_thread(self.notify, "✅ VPN desconectada.")
+                self.call_from_thread(self.notify, "VPN desconectada.")
 
     # --- Botones del menú ---
     

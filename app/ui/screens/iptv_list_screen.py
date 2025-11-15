@@ -92,7 +92,7 @@ class IptvListScreen(Screen):
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Maneja la pulsación de botones."""
         if event.button.id == "exit_iptv_button":
-            self.app.notify("🔌 Desconectando VPN...")
+            self.app.notify("Desconectando VPN...")
             self.run_worker(self.do_disconnect, thread=True)
             return
 
@@ -118,11 +118,11 @@ class IptvListScreen(Screen):
     def on_disconnect_finished(self, vpn_result: VPNStatus) -> None:
         """Finaliza la desconexión y vuelve al menú."""
         if vpn_result == VPNStatus.SKIPPED:
-            self.app.notify("⚠️ Desconexión VPN omitida.", timeout=3)
+            self.app.notify("Desconexión VPN omitida.", timeout=3)
         elif vpn_result == VPNStatus.SUCCESS:
-            self.app.notify("✅ VPN desconectada.")
+            self.app.notify("VPN desconectada.")
         else:
-            self.app.notify("⚠️ VPN no estaba conectada.", severity="warning")
+            self.app.notify("VPN no estaba conectada.", severity="warning")
         
         # Volver al menú principal de forma segura
         try:
