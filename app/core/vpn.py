@@ -62,10 +62,13 @@ def connect_vpn() -> VPNStatus:
     """
     Se conecta a NordVPN usando el CLI oficial.
     Usa el país configurado en config.ini si está especificado.
+    Espera hasta 10 segundos para verificar que la conexión esté establecida.
     
     Returns:
         VPNStatus: Estado de la operación
     """
+    import time
+    
     # Check platform compatibility
     if platform.system() not in ["Linux", "Darwin"]:  # Darwin = macOS
         logging.warning("Plataforma no compatible (se requiere Linux o macOS).")
@@ -88,12 +91,24 @@ def connect_vpn() -> VPNStatus:
         logging.info("Conectando a NordVPN (servidor automático)...")
         success, output = _run_nordvpn_command(["connect"])
     
-    if success:
-        logging.info(f"✅ Conexión VPN establecida: {output}")
-        return VPNStatus.SUCCESS
-    else:
-        logging.error(f"❌ Error al conectar VPN: {output}")
+    if not success:
+        logging.error(f"❌ Error al ejecutar comando de conexión VPN: {output}")
         return VPNStatus.FAILED
+    
+    # Esperar y verificar que la conexión esté realmente establecida
+    logging.info("Verificando estado de conexión VPN...")
+    max_attempts = 10  # 10 intentos = 10 segundos
+    for attempt in range(max_attempts):
+        time.sleep(1)  # Esperar 1 segundo entre verificaciones
+        status = get_vpn_status()
+        if status["connected"]:
+            logging.info(f"✅ Conexión VPN establecida correctamente (verificado en {attempt + 1}s)")
+            return VPNStatus.SUCCESS
+        logging.debug(f"Verificación {attempt + 1}/{max_attempts}: VPN aún no conectada...")
+    
+    # Si después de 10 segundos no está conectada, reportar error
+    logging.error("❌ La VPN no se conectó después de 10 segundos de espera")
+    return VPNStatus.FAILED
 
 def disconnect_vpn() -> VPNStatus:
     """

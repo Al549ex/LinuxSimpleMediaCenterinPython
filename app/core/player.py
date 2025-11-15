@@ -22,6 +22,7 @@ def play_video(
         # Base del comando con optimizaciones para RPi4
         command = [
             "mpv",
+            "--hwdec=auto-safe",
             "--fullscreen",
         ]
 
@@ -30,11 +31,8 @@ def play_video(
             logging.info("Streaming detectado. Aplicando optimizaciones de red.")
             command.extend([
                 "--cache=yes",
-                "--cache-secs=10",           # 10 segundos de buffer
-                "--demuxer-max-bytes=50M",   # 50MB de buffer máximo
-                "--demuxer-readahead-secs=5", # Pre-buffer de 5 segundos
-                "--stream-buffer-size=512k",  # Buffer de red de 512KB
-                "--network-timeout=15",       # Timeout de red de 15s
+                "--cache-secs=5",           # 10 segundos de buffer
+                "--demuxer-max-bytes=150M",   # 50MB de buffer máximo
             ])
         else:
             # Para archivos locales, deshabilitar caché innecesaria
@@ -47,6 +45,9 @@ def play_video(
         if mute_video:
             command.append("--no-audio")
             logging.info("Vídeo silenciado (--no-audio).")
+        else:
+            command.append("--audio-channels=stereo")
+            logging.info("Reproducción con audio.")
 
         # Posición de inicio
         if start_position > 0:

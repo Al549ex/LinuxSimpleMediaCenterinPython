@@ -144,10 +144,17 @@ xset -dpms
 xset s noblank
 
 # Esperar a que X11 se inicialice completamente
-sleep 2
+sleep 3
 
-# Lanzar LXTerminal en pantalla completa con la aplicación
-lxterminal --geometry=200x100 -e "cd ~/LinuxSimpleMediaCenterinPython && python3 run.py" &
+# IMPORTANTE: Ajusta la ruta a donde está tu proyecto
+# Opción 1: Si está en Desktop
+# lxterminal --geometry=200x100 -e "bash -c 'cd ~/Desktop/Programación/IPTV/RaspIPTV && python3 run.py; exec bash'" &
+
+# Opción 2: Si lo clonaste con git en el home
+# lxterminal --geometry=200x100 -e "bash -c 'cd ~/LinuxSimpleMediaCenterinPython && python3 run.py; exec bash'" &
+
+# Opción 3: Ruta absoluta (RECOMENDADO - reemplaza con tu ruta real)
+lxterminal --geometry=200x100 -e "bash -c 'cd /home/RaspiAlex/Desktop/Programación/IPTV/RaspIPTV && python3 run.py; exec bash'" &
 ```
 
 Dale permisos de ejecución:
@@ -275,7 +282,175 @@ Después de aplicar todos los cambios:
    - Cursor del ratón oculto
    - Pantalla completamente negra con solo la app visible
 
-## ⚠️ Solución de Problemas
+## 🚨 PANTALLA NEGRA - Solución de Problemas
+
+### Diagnóstico Rápido
+
+Si solo ves la pantalla negra, conéctate por SSH desde otro ordenador:
+
+```bash
+ssh RaspiAlex@raspberrypi.local
+```
+
+O cambia a TTY2 presionando **Ctrl+Alt+F2** en la Raspberry Pi.
+
+### 1. Verificar que X11 y Openbox están corriendo
+
+```bash
+# Verifica procesos
+ps aux | grep openbox
+ps aux | grep lxterminal
+
+# Si no aparecen, reinicia X11
+pkill X
+startx
+```
+
+### 2. Probar la Ruta de la Aplicación Manualmente
+
+```bash
+# Prueba si puedes ejecutar la app directamente
+cd ~/Desktop/Programación/IPTV/RaspIPTV
+python3 run.py
+
+# Si da error "No such file or directory", encuentra la ruta real:
+find ~ -name "run.py" -type f 2>/dev/null
+```
+
+### 3. Corregir el Archivo Autostart
+
+Una vez que sepas la ruta correcta, edita:
+
+```bash
+nano ~/.config/openbox/autostart
+```
+
+Reemplaza la última línea con la ruta correcta. Por ejemplo:
+
+```bash
+# Si tu proyecto está aquí:
+lxterminal --geometry=200x100 -e "bash -c 'cd /home/RaspiAlex/Desktop/Programación/IPTV/RaspIPTV && python3 run.py; exec bash'" &
+
+# O si está en otro lugar (usa la ruta que encontraste con 'find'):
+lxterminal --geometry=200x100 -e "bash -c 'cd /ruta/completa/a/tu/proyecto && python3 run.py; exec bash'" &
+```
+
+### 4. Verificar que config.ini Existe
+
+```bash
+cd ~/Desktop/Programación/IPTV/RaspIPTV
+ls -la config.ini
+
+# Si no existe, cópialo del ejemplo:
+cp config.ini.example config.ini
+nano config.ini  # Edita con tus datos
+```
+
+### 5. Verificar Dependencias de Python
+
+```bash
+cd ~/Desktop/Programación/IPTV/RaspIPTV
+pip3 install -r requirements.txt
+```
+
+### 6. Probar LXTerminal Manualmente (Desde SSH)
+
+```bash
+# Exportar DISPLAY
+export DISPLAY=:0
+
+# Intentar abrir LXTerminal
+lxterminal -e "bash -c 'cd /home/RaspiAlex/Desktop/Programación/IPTV/RaspIPTV && python3 run.py'" &
+```
+
+### 7. Ver Logs de Errores
+
+```bash
+# Crea un log en el autostart para ver errores
+nano ~/.config/openbox/autostart
+```
+
+Modifica la última línea para capturar errores:
+
+```bash
+lxterminal --geometry=200x100 -e "bash -c 'cd /home/RaspiAlex/Desktop/Programación/IPTV/RaspIPTV && python3 run.py 2>&1 | tee ~/app_error.log; exec bash'" &
+```
+
+Luego reinicia y mira el log:
+
+```bash
+cat ~/app_error.log
+```
+
+### 8. Script de Autostart Completo y Probado
+
+Usa este archivo **completo** para `~/.config/openbox/autostart`:
+
+```bash
+#!/bin/bash
+
+# Log para debug
+exec > ~/.openbox_autostart.log 2>&1
+echo "Autostart iniciado: $(date)"
+
+# Ocultar cursor
+which unclutter && unclutter -idle 0.1 -root &
+
+# Desactivar salvapantallas
+xset s off
+xset -dpms
+xset s noblank
+
+echo "Esperando 3 segundos para que X11 se estabilice..."
+sleep 3
+
+# Encuentra la ruta del proyecto (ajusta según tu instalación)
+PROJECT_PATH="/home/RaspiAlex/Desktop/Programación/IPTV/RaspIPTV"
+
+# Verifica que existe
+if [ -d "$PROJECT_PATH" ]; then
+    echo "Proyecto encontrado en: $PROJECT_PATH"
+    
+    # Verifica que run.py existe
+    if [ -f "$PROJECT_PATH/run.py" ]; then
+        echo "Lanzando aplicación..."
+        lxterminal --geometry=200x100 -e "bash -c 'cd $PROJECT_PATH && python3 run.py; echo Presiona Enter para cerrar; read'" &
+        echo "LXTerminal lanzado"
+    else
+        echo "ERROR: No se encuentra run.py en $PROJECT_PATH"
+        lxterminal -e "bash -c 'echo ERROR: No se encuentra run.py; echo Revisa la ruta en autostart; exec bash'" &
+    fi
+else
+    echo "ERROR: No se encuentra el directorio $PROJECT_PATH"
+    lxterminal -e "bash -c 'echo ERROR: Directorio del proyecto no encontrado; echo Revisa ~/.config/openbox/autostart; exec bash'" &
+fi
+
+echo "Autostart completado: $(date)"
+```
+
+Después de guardar, dale permisos:
+
+```bash
+chmod +x ~/.config/openbox/autostart
+```
+
+### 9. Reiniciar y Verificar Logs
+
+```bash
+sudo reboot
+```
+
+Después del reinicio, conéctate por SSH y revisa:
+
+```bash
+# Ver log de autostart
+cat ~/.openbox_autostart.log
+
+# Ver si hay errores de Python
+cat ~/app_error.log
+```
+
+## ⚠️ Solución de Problemas Adicionales
 
 ### La ventana tiene bordes
 ```bash
