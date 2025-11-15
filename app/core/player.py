@@ -23,8 +23,6 @@ def play_video(
         command = [
             "mpv",
             "--fullscreen",
-            "--hwdec=auto-safe",  # Decodificación por hardware específica para RPi
-            "--profile=fast",    # Perfil de bajo consumo
         ]
 
         # Optimizaciones específicas para streaming
