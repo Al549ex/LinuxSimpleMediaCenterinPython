@@ -1,328 +1,299 @@
-# 🎬 RaspIPTV Media Center
+# RaspIPTV - Media Center for Raspberry Pi
 
-A complete media center optimized for **Raspberry Pi 4**, built with Python and Textual. Play local movies, IPTV with VPN integration, streaming radio and more.
-
-![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%204-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
----
+A lightweight, terminal-based media center application for Raspberry Pi with support for local media, IPTV streaming, internet radio, and VPN integration.
 
 ## ✨ Features
 
-### 🎥 Movie Library
-- **TMDB Integration**: Automatic movie information lookup
-- **Complete Details**: Synopsis, cast, director, genres, ratings
-- **Save and Resume**: Pick up where you left off
-- **Elegant Interface**: Library-style design with all information
+- 🎬 **Local Media Player**: Browse and play movies from local storage
+- 📺 **IPTV Streaming**: M3U playlist support with group organization
+- 📻 **Internet Radio**: Manage and play radio stations
+- 🔒 **VPN Integration**: Automatic NordVPN connection with token or QR authentication
+- 🎨 **Modern TUI**: Built with Textual framework for sleek terminal experience
+- 🎯 **TMDb Integration**: Fetch movie metadata and posters (optional)
+- ⚡ **Optimized**: Hardware acceleration support for Raspberry Pi
 
-### 📺 IPTV
-- **Channel Playback**: Support for `.m3u` files
-- **Automatic Updates**: Downloads and splits IPTV lists by groups
-- **VPN Integration**: Automatically connects to NordVPN for streaming
-- **Smart Management**: Alphabetical organization of channel groups
+## 📋 Requirements
 
-### 📻 Streaming Radio
-- **Background Playback**: Listen to radio while watching IPTV
-- **Station Management**: Add, remove and organize your favorite stations
-- **Full Controls**: Pause/resume from any screen
-- **Smart Muting**: Video audio mutes automatically
+- Raspberry Pi 3 or higher (recommended)
+- Raspberry Pi OS or Debian-based Linux
+- Python 3.9+
+- MPV media player
+- NordVPN CLI (optional, for VPN features)
 
-### 🔐 VPN
-- **NordVPN Integration**: Automatic connection/disconnection
-- **Configurable**: Enable/disable VPN for IPTV from settings
-- **Smart Management**: Only connects when needed
-
-### ⚙️ Settings
-- **Graphical Interface**: Everything configurable from the app
-- **Path Validation**: Verifies and creates directories automatically
-- **Persistence**: Configuration saved in `config.ini`
-
----
-
-## 🚀 Installation
-
-### Prerequisites
-- **Raspberry Pi 4** (recommended) or any Linux/macOS system
-- **Python 3.9+**
-- **mpv** (media player)
-- **NordVPN** installed (optional, only for VPN features)
-
-### 1. Install MPV
-
-**On Raspberry Pi / Debian / Ubuntu:**
-```bash
-sudo apt update
-sudo apt install mpv
-```
-
-**On macOS:**
-```bash
-brew install mpv
-```
-
-### 2. Clone the repository
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/yourusername/RaspIPTV.git
-cd RaspIPTV
-```
+# Install system dependencies
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3 python3-pip mpv -y
 
-### 3. Create virtual environment
+# Clone repository
+git clone https://github.com/Al549ex/LinuxSimpleMediaCenterinPython.git
+cd LinuxSimpleMediaCenterinPython
 
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+# Install Python dependencies
+pip3 install -r requirements.txt
 
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Initial configuration
-
-Copy the example configuration file:
-```bash
+# Configure
 cp config.ini.example config.ini
+nano config.ini
+
+# Run
+python3 run.py
 ```
 
-Edit `config.ini` or use the app's graphical interface to configure:
-- Movie and M3U file paths
-- VPN credentials (if using NordVPN)
-- TMDB API Key (optional, for movie information)
+## 🔐 NordVPN Authentication
 
----
+### Method 1: Access Token (Recommended) ⭐
+
+**Why use tokens?**
+- ✅ Instant authentication - No waiting or QR scanning
+- ✅ More reliable - No process synchronization issues
+- ✅ Secure - Revocable tokens, no passwords stored
+- ✅ Automated - Perfect for headless setups
+
+**Setup:**
+1. Get your token: https://my.nordaccount.com/dashboard/nordvpn/access-tokens
+2. Add to `config.ini`:
+   ```ini
+   [VPN]
+   access_token = YOUR_TOKEN_HERE
+   ```
+3. Click "🔐 Authenticate NordVPN" in Settings
+4. Done! Instant auth ✨
+
+See [NORDVPN_TOKEN_SETUP.md](NORDVPN_TOKEN_SETUP.md) for detailed instructions.
+
+### Method 2: QR Code (Fallback)
+
+If no token is configured:
+1. Click "🔐 Authenticate NordVPN" in Settings
+2. Scan QR code with your phone
+3. Login in browser
+4. App auto-detects (checks every 5s)
+
+## ⚙️ Configuration
+
+### Basic Setup
+
+```ini
+[PATHS]
+local_media_path = /home/pi/Movies/
+iptv_folder_path = /home/pi/M3U/
+radio_file_path = radios.json
+
+[VPN]
+enabled_for_iptv = yes
+country = Spain
+access_token = YOUR_TOKEN_HERE
+
+[IPTV]
+source_url = https://provider.com/playlist.m3u
+
+[TMDB]
+api_key = YOUR_TMDB_KEY
+```
+
+### VPN Configuration
+
+**NordVPN CLI Installation:**
+```bash
+sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
+
+# Recommended: Use NordLynx (faster)
+nordvpn set technology nordlynx
+```
+
+**Get Access Token:**
+- Visit: https://my.nordaccount.com/dashboard/nordvpn/access-tokens
+- Generate new token
+- Copy to `config.ini`
+
+### TMDb API (Optional)
+
+Get free API key at: https://www.themoviedb.org/settings/api
 
 ## 🎮 Usage
 
-### Start the application
-
+### Launch Application
 ```bash
 python3 run.py
 ```
 
-### Get TMDB API Key (optional but recommended)
-
-1. Go to [https://www.themoviedb.org/](https://www.themoviedb.org/)
-2. Create a free account
-3. Go to **Settings → API**
-4. Request an API Key (instant approval)
-5. Copy your **API Key (v3 auth)**
-6. Paste it in the app: **Settings → TMDB API Key**
-
-### Expected file structure
-
-```
-RaspIPTV/
-├── run.py                 # Main file
-├── config.ini             # Configuration (auto-created)
-├── radios.json            # Radio list (auto-created)
-├── Movies/                # Movies folder (configurable)
-│   ├── movie1.mp4
-│   ├── movie2.mkv
-│   └── ...
-├── M3U Files/             # IPTV lists folder (configurable)
-│   ├── sports.m3u
-│   ├── news.m3u
-│   └── ...
-└── app/                   # Source code
-```
-
----
-
-## 🎯 Navigation
+### Navigation
+- **Arrow keys**: Navigate menus
+- **Enter**: Select item
+- **Escape/Q**: Back/Quit
+- **Tab**: Switch UI elements
 
 ### Main Menu
-- **Watch Movies (Local)**: Access your movie library
-- **IPTV**: Browse your TV channels
-- **Update IPTV Channels**: Download and update your IPTV list
-- **Manage Radio Stations**: Add/remove radio stations
-- **Settings**: Adjust all options
+1. **Local Movies** - Browse local media
+2. **IPTV** - Browse M3U playlists
+3. **Radio** - Manage radio stations
+4. **Settings** - Configure app & VPN
 
-### Keyboard shortcuts
-- `q` or `Ctrl+C`: Exit current screen
-- `Esc`: Go back
-- `Tab`: Navigate between elements
-- `Enter`: Select
-
----
-
-## 🛠️ Raspberry Pi 4 Optimizations
-
-The project is specifically optimized to run on Raspberry Pi 4:
-
-### MPV Player
-- **Hardware decoding**: `--hwdec=rpi-copy`
-- **Optimized GPU**: `--vo=gpu --gpu-context=drm`
-- **Smart cache**: 50MB buffer for streaming
-- **Low power profile**: `--profile=fast`
-
-### Python Code
-- **Async workers**: Heavy operations in separate threads
-- **Data caching**: Reduces repetitive lookups
-- **Compiled regular expressions**: Ultra-fast M3U parsing
-- **Efficient memory management**: Proper resource cleanup
-
----
-
-## 📁 Project structure
+## 📁 Project Structure
 
 ```
 RaspIPTV/
-├── run.py                          # Entry point
-├── requirements.txt                # Python dependencies
-├── config.ini                      # Configuration (gitignored)
-├── README.md                       # This file
-│
 ├── app/
-│   ├── core/                       # Business logic
-│   │   ├── config.py              # Configuration management
-│   │   ├── iptv.py                # M3U parsing
-│   │   ├── iptv_refresher.py     # Channel updates
-│   │   ├── local_media.py         # Movie scanning
-│   │   ├── player.py              # MPV interface
-│   │   ├── progress.py            # Save/resume movies
-│   │   ├── radio.py               # Radio management
-│   │   ├── tmdb.py                # The Movie Database API
-│   │   └── vpn.py                 # NordVPN control
-│   │
-│   └── ui/                         # User interface (Textual)
-│       ├── screens/               # Application screens
-│       │   ├── movie_list_screen.py
-│       │   ├── movie_detail_screen.py
-│       │   ├── iptv_list_screen.py
-│       │   ├── m3u_list_screen.py
-│       │   ├── now_playing_screen.py
-│       │   ├── radio_manager_screen.py
-│       │   ├── settings_screen.py
-│       │   └── ...
-│       └── widgets/               # Reusable components
+│   ├── core/              # Core functionality
+│   │   ├── config.py      # Configuration manager
+│   │   ├── vpn.py         # NordVPN integration
+│   │   ├── player.py      # MPV wrapper
+│   │   ├── iptv.py        # M3U parser
+│   │   ├── radio.py       # Radio manager
+│   │   └── tmdb.py        # TMDb API client
+│   └── ui/                # User interface
+│       ├── app_main.py    # Main app
+│       └── screens/       # UI screens
+├── config.ini             # Your config (gitignored)
+├── config.ini.example     # Example configuration
+├── radios.json            # Radio database
+├── requirements.txt       # Python dependencies
+└── run.py                 # Entry point
 ```
 
----
+## 🛠️ Troubleshooting
 
-## 🔧 Advanced configuration
+### VPN Issues
 
-### `config.ini` file format
-
-```ini
-[PATHS]
-local_media_path = ./Movies/
-iptv_folder_path = ./M3U Files/
-radio_file_path = radios.json
-
-[VPN]
-enabled_for_iptv = no
-country = Spain
-username = your_vpn_username
-password = your_vpn_password
-
-[IPTV]
-source_url = https://your-provider.com/list.m3u
-
-[TMDB]
-api_key = your_tmdb_api_key
+**NordVPN CLI not installed:**
+```bash
+sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
 ```
 
-### `radios.json` file format
+**Token invalid/expired:**
+```bash
+# Generate new token at my.nordaccount.com
+# Update config.ini
+```
 
+**Check VPN status:**
+```bash
+nordvpn status
+nordvpn account
+```
+
+**Reset authentication:**
+```bash
+nordvpn logout
+# Then use app to re-authenticate
+```
+
+### Playback Issues
+
+**No video/audio:**
+```bash
+# Test MPV
+mpv --version
+mpv /path/to/video.mp4
+```
+
+**Choppy playback:**
+- Enable hardware acceleration (auto-enabled)
+- Check network speed for streams
+- Reduce video quality
+
+### General Issues
+
+**Missing dependencies:**
+```bash
+pip3 install -r requirements.txt --upgrade
+```
+
+**Permission errors:**
+```bash
+chmod +x run.py
+```
+
+## 📝 Adding Content
+
+### Radio Stations (UI)
+1. Radio → Manage Radios → Add Radio
+2. Enter name and stream URL
+3. Save
+
+### Radio Stations (JSON)
+Edit `radios.json`:
 ```json
 [
   {
-    "name": "National Radio",
-    "url": "https://radio.example.com/stream.mp3"
-  },
-  {
-    "name": "Classical Radio",
-    "url": "https://clasica.example.com/live"
+    "name": "Station Name",
+    "url": "http://stream-url.com:8000/live"
   }
 ]
 ```
 
----
+### Local Movies
+Place video files in configured `local_media_path`
 
-## 🐛 Troubleshooting
+Supported formats: `.mp4`, `.mkv`, `.avi`, `.mov`, `.wmv`, `.flv`, `.webm`, `.m4v`
 
-### MPV not found
+### IPTV Playlists
+Place `.m3u` files in configured `iptv_folder_path`
+
+## 🎯 Performance Tips
+
+1. **Hardware acceleration**: Automatically configured for RPi
+2. **Use NordLynx**: Faster than OpenVPN
+   ```bash
+   nordvpn set technology nordlynx
+   ```
+3. **Wired connection**: Ethernet > WiFi for streaming
+4. **Optimize buffer**: Auto-configured for smooth playback
+
+## 🔧 Advanced
+
+### Custom MPV Configuration
+Edit `app/core/player.py` to customize MPV parameters
+
+### Network Optimization
 ```bash
-# Verify mpv is installed
-which mpv
+# Set DNS
+nordvpn set dns 1.1.1.1 1.0.0.1
 
-# If not installed, install it
-sudo apt install mpv
+# Enable kill switch
+nordvpn set killswitch on
+
+# Auto-connect
+nordvpn set autoconnect on
 ```
-
-### VPN won't connect
-- Verify NordVPN is installed: `nordvpn --version`
-- Make sure you're logged in: `nordvpn login`
-- Check your credentials in `config.ini`
-
-### Movies don't show up
-- Verify the path in Settings
-- Make sure the folder contains video files
-- Supported formats: `.mp4`, `.mkv`, `.avi`, `.mov`, etc.
-
-### Movie information doesn't appear
-- Verify you've configured the TMDB API Key
-- Check your internet connection
-- Heavily modified filenames may not be found
-
----
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you want to improve the project:
+Contributions welcome! Feel free to:
+- Report bugs via GitHub Issues
+- Suggest features
+- Submit pull requests
 
-1. Fork the repository
-2. Create a branch for your feature (`git checkout -b feature/MyFeature`)
-3. Commit your changes (`git commit -m 'Add MyFeature'`)
-4. Push to the branch (`git push origin feature/MyFeature`)
-5. Open a Pull Request
+## 📄 License
 
----
+See [LICENSE](LICENSE) file for details.
 
-## 📝 TODO / Roadmap
+## 🔗 Links
 
-- [ ] Support for movie posters in the UI
-- [ ] Favorites system for IPTV channels
-- [ ] Automatic subtitles
-- [ ] Trakt.tv integration
-- [ ] Mobile remote control
-- [ ] Multiple user profiles support
-- [ ] EPG scraping for channel guide
+- **GitHub**: https://github.com/Al549ex/LinuxSimpleMediaCenterinPython
+- **NordVPN**: https://nordvpn.com
+- **TMDb**: https://www.themoviedb.org
+- **Textual**: https://textual.textualize.io
 
----
+## 📞 Support
 
-## 📜 License
+- GitHub Issues: Report bugs and request features
+- [NORDVPN_TOKEN_SETUP.md](NORDVPN_TOKEN_SETUP.md) - Token authentication guide
+- [NORDVPN_SETUP.md](NORDVPN_SETUP.md) - Initial VPN setup
 
-This project is under the MIT License. See the `LICENSE` file for more details.
+## 🎉 Built With
 
----
-
-## 👏 Credits
-
-- **Textual**: TUI Framework by [Textualize](https://github.com/Textualize/textual)
-- **MPV**: Media player by [mpv.io](https://mpv.io/)
-- **TMDB**: Movie API by [The Movie Database](https://www.themoviedb.org/)
-- **NordVPN Switcher**: By [kl4mm](https://github.com/kl4mm/NordVPN-switcher)
+- **Textual** - Modern terminal UI framework
+- **MPV** - Powerful media player
+- **NordVPN** - VPN service
+- **TMDb** - Movie database API
+- **Python 3.9+** - Programming language
 
 ---
 
-## 📧 Contact
+**Made with ❤️ for Raspberry Pi enthusiasts**
 
-Questions? Suggestions? Found a bug?
-
-- Open an [Issue](https://github.com/yourusername/RaspIPTV/issues)
-- Send a [Pull Request](https://github.com/yourusername/RaspIPTV/pulls)
-
----
-
-<div align="center">
-  
-**Made with ❤️ for the Raspberry Pi community**
-
-⭐ If you like the project, give it a star!
-
-</div>
+*Enjoy your media center! 🍿*
